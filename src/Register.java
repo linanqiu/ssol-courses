@@ -40,6 +40,7 @@ public class Register {
 	public final String SEARCH_FIND = "Search Class";
 	public final String FALL_ACCEPT = " //input[@type=\"submit\" and @value=\"Continue with Fall 2013 Registration\"]";
 	public final String BACK_TO_REGISTRATION = "Back To Registration";
+	public final String IP_BLOCKED = "IP blocked";
 	private Calendar cal;
 	private DateFormat df;
 	private int time;
@@ -101,9 +102,10 @@ public class Register {
 		return kill;
 	}
 
-	public void run() throws NoSuchElementException{
+	public void run() throws NoSuchElementException {
 		if (!killCode()) {
 			login();
+			blockCheck();
 			goToRegistration();
 			for (int courseID : courses) {
 				searchAndRegister(courseID);
@@ -118,7 +120,13 @@ public class Register {
 		}
 	}
 
-	private void login() throws NoSuchElementException{
+	private void blockCheck() {
+		if (driver.getPageSource().contains(IP_BLOCKED)) {
+			timer(900000);
+		}
+	}
+
+	private void login() throws NoSuchElementException {
 		driver.get(startURL);
 		WebElement usernameElement = driver.findElement(By.name(USERNAME_FIND));
 		usernameElement.sendKeys(username);
@@ -127,7 +135,7 @@ public class Register {
 		usernameElement.submit();
 	}
 
-	private void goToRegistration() throws NoSuchElementException{
+	private void goToRegistration() throws NoSuchElementException {
 		WebElement registrationLink = driver.findElement(By
 				.linkText(REGISTRATION_LINK_TEXT));
 		registrationLink.click();
@@ -157,7 +165,7 @@ public class Register {
 		}
 	}
 
-	private void searchAndRegister(int classID) throws NoSuchElementException{
+	private void searchAndRegister(int classID) throws NoSuchElementException {
 		WebElement searchLink = driver.findElement(By.linkText(SEARCH_FIND));
 		searchLink.click();
 
@@ -186,7 +194,7 @@ public class Register {
 		}
 	}
 
-	private void timer(long millis) throws NoSuchElementException{
+	private void timer(long millis) throws NoSuchElementException {
 		try {
 			Thread.sleep(millis);
 		} catch (InterruptedException e) {

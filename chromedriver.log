@@ -1,31 +1,21 @@
-[0417/145211:INFO:chromedriver_server.cc(76)] Handling request: /status 
-[0417/145211:INFO:chromedriver_server.cc(81)] Done handling request: 200 {"sessionId":"","status":0,"value":{"build":{"version":"alpha"},"os":{"arch":"x86_64","name":"Mac OS X","version":"10.8.3"}}}
-[0417/145211:INFO:chromedriver_server.cc(76)] Handling request: /session {"desiredCapabilities":{"platform":"ANY","browserName":"chrome","chromeOptions":{"args":[],"extensions":[]},"version":"","chrome.switches":[]}}
-[0417/145211:INFO:chrome_launcher.cc(74)] Using chrome from /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
-[0417/145212:INFO:chromedriver_server.cc(81)] Done handling request: 303 
-[0417/145212:INFO:chromedriver_server.cc(76)] Handling request: /session/444fd05c53ad831c68a2173fff65fc98 
-[0417/145212:INFO:chromedriver_server.cc(81)] Done handling request: 200 {"sessionId":"444fd05c53ad831c68a2173fff65fc98","status":0,"value":{"acceptSslCerts":true,"applicationCacheEnabled":false,"browserConnectionEnabled":false,"browserName":"chrome","cssSelectorsEnabled":true,"databaseEnabled":true,"driverVersion":"0.7","handlesAlerts":true,"javascriptEnabled":true,"locationContextEnabled":true,"nativeEvents":true,"platform":"Mac OS X","rotatable":false,"takesScreenshot":true,"version":"27.0.1453.47","webStorageEnabled":true}}
-[0417/145212:INFO:chromedriver_server.cc(76)] Handling request: /session/444fd05c53ad831c68a2173fff65fc98/url {"url":"https://ssol.columbia.edu"}
-[0417/145212:INFO:chromedriver_server.cc(81)] Done handling request: 200 {"sessionId":"444fd05c53ad831c68a2173fff65fc98","status":0,"value":null}
-[0417/145212:INFO:chromedriver_server.cc(76)] Handling request: /session/444fd05c53ad831c68a2173fff65fc98/element {"using":"name","value":"u_id"}
-[0417/145212:INFO:chromedriver_server.cc(81)] Done handling request: 200 {"sessionId":"444fd05c53ad831c68a2173fff65fc98","status":0,"value":{"ELEMENT":"1"}}
-[0417/145212:INFO:chromedriver_server.cc(76)] Handling request: /session/444fd05c53ad831c68a2173fff65fc98/element/1/value {"id":"1","value":["lq2137"]}
-[0417/145213:INFO:chromedriver_server.cc(81)] Done handling request: 200 {"sessionId":"444fd05c53ad831c68a2173fff65fc98","status":0,"value":null}
-[0417/145213:INFO:chromedriver_server.cc(76)] Handling request: /session/444fd05c53ad831c68a2173fff65fc98/element {"using":"name","value":"u_pw"}
-[0417/145213:INFO:chromedriver_server.cc(81)] Done handling request: 200 {"sessionId":"444fd05c53ad831c68a2173fff65fc98","status":0,"value":{"ELEMENT":"2"}}
-[0417/145213:INFO:chromedriver_server.cc(76)] Handling request: /session/444fd05c53ad831c68a2173fff65fc98/element/2/value {"id":"2","value":["Trimalchio9010"]}
-[0417/145213:INFO:chromedriver_server.cc(81)] Done handling request: 200 {"sessionId":"444fd05c53ad831c68a2173fff65fc98","status":0,"value":null}
-[0417/145213:INFO:chromedriver_server.cc(76)] Handling request: /session/444fd05c53ad831c68a2173fff65fc98/element/1/submit {"id":"1"}
-[0417/145213:INFO:chromedriver_server.cc(81)] Done handling request: 200 {"sessionId":"444fd05c53ad831c68a2173fff65fc98","status":0,"value":null}
-[0417/145213:INFO:chromedriver_server.cc(76)] Handling request: /session/444fd05c53ad831c68a2173fff65fc98/element {"using":"link text","value":"Registration"}
-[0417/145213:INFO:chromedriver_server.cc(81)] Done handling request: 200 {"sessionId":"444fd05c53ad831c68a2173fff65fc98","status":7,"value":{"message":"no such element\n  (Session info: chrome=27.0.1453.47)\n  (Driver info: chromedriver=0.7,platform=Mac OS X 10.8.3 x86_64)"}}
-[0417/145213:INFO:chromedriver_server.cc(76)] Handling request: /session/444fd05c53ad831c68a2173fff65fc98/url {"url":"https://ssol.columbia.edu"}
-[0417/145213:INFO:chromedriver_server.cc(81)] Done handling request: 200 {"sessionId":"444fd05c53ad831c68a2173fff65fc98","status":0,"value":null}
-[0417/145213:INFO:chromedriver_server.cc(76)] Handling request: /session/444fd05c53ad831c68a2173fff65fc98/element {"using":"name","value":"u_id"}
-[0417/145213:INFO:chromedriver_server.cc(81)] Done handling request: 200 {"sessionId":"444fd05c53ad831c68a2173fff65fc98","status":0,"value":{"ELEMENT":"1"}}
-[0417/145213:INFO:chromedriver_server.cc(76)] Handling request: /session/444fd05c53ad831c68a2173fff65fc98/element/1/value {"id":"1","value":["lq2137"]}
-[0417/145213:INFO:chromedriver_server.cc(81)] Done handling request: 200 {"sessionId":"444fd05c53ad831c68a2173fff65fc98","status":0,"value":null}
-[0417/145213:INFO:chromedriver_server.cc(76)] Handling request: /session/444fd05c53ad831c68a2173fff65fc98/element {"using":"name","value":"u_pw"}
-[0417/145213:INFO:chromedriver_server.cc(81)] Done handling request: 200 {"sessionId":"444fd05c53ad831c68a2173fff65fc98","status":0,"value":{"ELEMENT":"2"}}
-[0417/145213:INFO:chromedriver_server.cc(76)] Handling request: /session/444fd05c53ad831c68a2173fff65fc98/element/2/value {"id":"2","value":["Trimalchio9010"]}
-[0417/145214:INFO:chromedriver_server.cc(81)] Done handling request: 200 {"sessionId":"444fd05c53ad831c68a2173fff65fc98","status":102,"value":{"message":"disconnected: received Inspector.detached event\n  (Session info: chrome=27.0.1453.47)\n  (Driver info: chromedriver=0.7,platform=Mac OS X 10.8.3 x86_64)"}}
+[0417/171646:INFO:chromedriver_server.cc(76)] Handling request: /status 
+[0417/171646:INFO:chromedriver_server.cc(81)] Done handling request: 200 {"sessionId":"","status":0,"value":{"build":{"version":"alpha"},"os":{"arch":"x86_64","name":"Mac OS X","version":"10.8.3"}}}
+[0417/171646:INFO:chromedriver_server.cc(76)] Handling request: /session {"desiredCapabilities":{"platform":"ANY","browserName":"chrome","chromeOptions":{"args":[],"extensions":[]},"version":"","chrome.switches":[]}}
+[0417/171646:INFO:chrome_launcher.cc(74)] Using chrome from /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+[0417/171647:INFO:chromedriver_server.cc(81)] Done handling request: 303 
+[0417/171647:INFO:chromedriver_server.cc(76)] Handling request: /session/feff9654fb14be450cf2bbb86eca4362 
+[0417/171647:INFO:chromedriver_server.cc(81)] Done handling request: 200 {"sessionId":"feff9654fb14be450cf2bbb86eca4362","status":0,"value":{"acceptSslCerts":true,"applicationCacheEnabled":false,"browserConnectionEnabled":false,"browserName":"chrome","cssSelectorsEnabled":true,"databaseEnabled":true,"driverVersion":"0.7","handlesAlerts":true,"javascriptEnabled":true,"locationContextEnabled":true,"nativeEvents":true,"platform":"Mac OS X","rotatable":false,"takesScreenshot":true,"version":"27.0.1453.47","webStorageEnabled":true}}
+[0417/171647:INFO:chromedriver_server.cc(76)] Handling request: /session/feff9654fb14be450cf2bbb86eca4362/url {"url":"https://ssol.columbia.edu"}
+[0417/171648:INFO:chromedriver_server.cc(81)] Done handling request: 200 {"sessionId":"feff9654fb14be450cf2bbb86eca4362","status":0,"value":null}
+[0417/171648:INFO:chromedriver_server.cc(76)] Handling request: /session/feff9654fb14be450cf2bbb86eca4362/element {"using":"name","value":"u_id"}
+[0417/171648:INFO:chromedriver_server.cc(81)] Done handling request: 200 {"sessionId":"feff9654fb14be450cf2bbb86eca4362","status":0,"value":{"ELEMENT":"1"}}
+[0417/171648:INFO:chromedriver_server.cc(76)] Handling request: /session/feff9654fb14be450cf2bbb86eca4362/element/1/value {"id":"1","value":["lq2137"]}
+[0417/171648:INFO:chromedriver_server.cc(81)] Done handling request: 200 {"sessionId":"feff9654fb14be450cf2bbb86eca4362","status":0,"value":null}
+[0417/171648:INFO:chromedriver_server.cc(76)] Handling request: /session/feff9654fb14be450cf2bbb86eca4362/element {"using":"name","value":"u_pw"}
+[0417/171648:INFO:chromedriver_server.cc(81)] Done handling request: 200 {"sessionId":"feff9654fb14be450cf2bbb86eca4362","status":0,"value":{"ELEMENT":"2"}}
+[0417/171648:INFO:chromedriver_server.cc(76)] Handling request: /session/feff9654fb14be450cf2bbb86eca4362/element/2/value {"id":"2","value":["Trimalchio9010"]}
+[0417/171648:INFO:chromedriver_server.cc(81)] Done handling request: 200 {"sessionId":"feff9654fb14be450cf2bbb86eca4362","status":0,"value":null}
+[0417/171648:INFO:chromedriver_server.cc(76)] Handling request: /session/feff9654fb14be450cf2bbb86eca4362/element/1/submit {"id":"1"}
+[0417/171649:INFO:chromedriver_server.cc(81)] Done handling request: 200 {"sessionId":"feff9654fb14be450cf2bbb86eca4362","status":0,"value":null}
+[0417/171649:INFO:chromedriver_server.cc(76)] Handling request: /session/feff9654fb14be450cf2bbb86eca4362/source 
+[0417/171649:INFO:chromedriver_server.cc(81)] Done handling request: 200 {"sessionId":"feff9654fb14be450cf2bbb86eca4362","status":0,"value":"\u003Chtml\u003E\u003Chead\u003E\u003C/head\u003E\u003Cbody\u003E\u003Cpre style=\"word-wrap: break-word; white-space: pre-wrap;\"\u003EIP blocked\n\u003C/pre\u003E\u003C/body\u003E\u003C/html\u003E"}
