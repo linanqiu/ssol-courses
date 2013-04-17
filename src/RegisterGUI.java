@@ -20,12 +20,12 @@ import java.util.Scanner;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
+import javax.swing.JPasswordField;
 
 public class RegisterGUI extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField txtUni;
-	private JTextField txtPassword;
 	private JTextField txtTimeInMilliseconds;
 	private JTextField txtNumberOfTries;
 	private JScrollPane scrollPane;
@@ -33,6 +33,7 @@ public class RegisterGUI extends JFrame {
 	private Register register;
 	private JLabel lblUni;
 	private JLabel lblPassword;
+	private JPasswordField passwordField;
 
 	/**
 	 * Launch the application.
@@ -61,18 +62,18 @@ public class RegisterGUI extends JFrame {
 		setContentPane(contentPane);
 		GridBagLayout gbl_contentPane = new GridBagLayout();
 		gbl_contentPane.columnWidths = new int[] { 0, 0, 0, 0 };
-		gbl_contentPane.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0 };
+		gbl_contentPane.rowHeights = new int[] { 0, 0, 0, 0, 0, 0 };
 		gbl_contentPane.columnWeights = new double[] { 1.0, 0.0, 1.0,
 				Double.MIN_VALUE };
 		gbl_contentPane.rowWeights = new double[] { 1.0, 1.0, 1.0, 1.0, 1.0,
-				1.0, Double.MIN_VALUE };
+				Double.MIN_VALUE };
 		contentPane.setLayout(gbl_contentPane);
 
 		scrollPane = new JScrollPane();
 		scrollPane
 				.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
-		gbc_scrollPane.gridheight = 6;
+		gbc_scrollPane.gridheight = 5;
 		gbc_scrollPane.insets = new Insets(0, 0, 0, 5);
 		gbc_scrollPane.fill = GridBagConstraints.BOTH;
 		gbc_scrollPane.gridx = 0;
@@ -81,7 +82,7 @@ public class RegisterGUI extends JFrame {
 
 		txtrInputCourseId = new JTextArea();
 		txtrInputCourseId.setLineWrap(true);
-		txtrInputCourseId.setText("Input Course ID Here, following by breaks");
+		txtrInputCourseId.setText("Enter Call Numbers here, followed by breaks.");
 		scrollPane.setViewportView(txtrInputCourseId);
 
 		lblUni = new JLabel("UNI");
@@ -102,19 +103,19 @@ public class RegisterGUI extends JFrame {
 
 		lblPassword = new JLabel("Password");
 		GridBagConstraints gbc_lblPassword = new GridBagConstraints();
+		gbc_lblPassword.fill = GridBagConstraints.VERTICAL;
 		gbc_lblPassword.insets = new Insets(0, 0, 5, 5);
 		gbc_lblPassword.gridx = 1;
 		gbc_lblPassword.gridy = 1;
 		contentPane.add(lblPassword, gbc_lblPassword);
 
-		txtPassword = new JTextField();
-		GridBagConstraints gbc_txtPassword = new GridBagConstraints();
-		gbc_txtPassword.insets = new Insets(0, 0, 5, 0);
-		gbc_txtPassword.fill = GridBagConstraints.BOTH;
-		gbc_txtPassword.gridx = 2;
-		gbc_txtPassword.gridy = 1;
-		contentPane.add(txtPassword, gbc_txtPassword);
-		txtPassword.setColumns(10);
+		passwordField = new JPasswordField();
+		GridBagConstraints gbc_passwordField = new GridBagConstraints();
+		gbc_passwordField.insets = new Insets(0, 0, 5, 0);
+		gbc_passwordField.fill = GridBagConstraints.BOTH;
+		gbc_passwordField.gridx = 2;
+		gbc_passwordField.gridy = 1;
+		contentPane.add(passwordField, gbc_passwordField);
 
 		JLabel lblTimeInterval = new JLabel("Time Interval");
 		GridBagConstraints gbc_lblTimeInterval = new GridBagConstraints();
@@ -157,8 +158,7 @@ public class RegisterGUI extends JFrame {
 		});
 		GridBagConstraints gbc_btnGetMeMy = new GridBagConstraints();
 		gbc_btnGetMeMy.gridwidth = 2;
-		gbc_btnGetMeMy.fill = GridBagConstraints.BOTH;
-		gbc_btnGetMeMy.gridheight = 2;
+		gbc_btnGetMeMy.fill = GridBagConstraints.VERTICAL;
 		gbc_btnGetMeMy.gridx = 1;
 		gbc_btnGetMeMy.gridy = 4;
 		contentPane.add(btnGetMeMy, gbc_btnGetMeMy);
@@ -173,7 +173,7 @@ public class RegisterGUI extends JFrame {
 		public void actionPerformed(ActionEvent e) {
 			ArrayList<Integer> courses = new ArrayList<Integer>();
 			String username = txtUni.getText();
-			String password = txtPassword.getText();
+			String password = new String(passwordField.getPassword());
 			long millis = Long.parseLong(txtTimeInMilliseconds.getText());
 			int tries = Integer.parseInt(txtNumberOfTries.getText());
 			Scanner scan = new Scanner(txtrInputCourseId.getText());
@@ -181,7 +181,11 @@ public class RegisterGUI extends JFrame {
 				courses.add(Integer.parseInt(scan.nextLine()));
 			}
 			register = new Register(username, password, courses,
-					"https://ssol.columbia.edu", millis, tries);
+					"https://ssol.columbia.edu", millis);
+			while (tries > 0) {
+				tries--;
+				register.run();
+			}
 		}
 	}
 

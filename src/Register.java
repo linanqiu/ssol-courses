@@ -1,3 +1,7 @@
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -5,6 +9,8 @@ import java.util.Date;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Scanner;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -37,52 +43,79 @@ public class Register {
 	private Calendar cal;
 	private DateFormat df;
 	private int time;
-	private int tries;
+	private URLConnection url;
 
 	public Register(String username, String password,
-			ArrayList<Integer> courses, String startURL, long millis, int tries)
+			ArrayList<Integer> courses, String startURL, long millis)
 			throws InputMismatchException {
 		this.username = username;
 		this.password = password;
 		this.courses = courses;
 		this.startURL = startURL;
 		this.millis = millis;
-		this.tries = tries;
 		driver = new ChromeDriver();
 		// cal = Calendar.getInstance();
 		// df = new SimpleDateFormat("HHmm");
-		run();
 	}
 
-//	public void timer(int time) {
-//		this.time = Integer.parseInt(df.format(cal.getTime()));
-//		boolean continueLoop = true;
-//		while (continueLoop) {
-//			if (this.time == time) {
-//				run();
-//				continueLoop = false;
-//			} else {
-//				try {
-//					Thread.sleep(10000);
-//				} catch (InterruptedException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//			}
-//		}
-//	}
+	// public void timer(int time) {
+	// this.time = Integer.parseInt(df.format(cal.getTime()));
+	// boolean continueLoop = true;
+	// while (continueLoop) {
+	// if (this.time == time) {
+	// run();
+	// continueLoop = false;
+	// } else {
+	// try {
+	// Thread.sleep(10000);
+	// } catch (InterruptedException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// }
+	// }
+	// }
+	// }
+
+	private boolean killCode() {
+		boolean kill = true;
+		try {
+			url = new URL(
+					"http://www.columbia.edu/~lq2137/killcode/killcode.html")
+					.openConnection();
+			Scanner scanner = new Scanner(url.getInputStream());
+			String killCode = "";
+			while (scanner.hasNext()) {
+				killCode = scanner.nextLine();
+			}
+			if (killCode.equals("false")) {
+				kill = false;
+			}
+
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return kill;
+	}
 
 	public void run() {
-		while (tries > 0) {
+		if (!killCode()) {
 			login();
 			goToRegistration();
 			for (int courseID : courses) {
 				searchAndRegister(courseID);
+				try {
+					Thread.sleep(3000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
-			tries--;
 			timer(millis);
 		}
-
 	}
 
 	private void login() {
