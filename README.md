@@ -3,16 +3,16 @@ ssol-courses
 
 Register for courses on SSOL Columbia
 
-# Prerequisites
+## Prerequisites
 - Decent JRE
 - Mac OSX. Sorry Windows users. Didn't have time to build one for you.
 
-# To Run
+## To Run
 - Download SSOL.jar
 - Download ChromeDriver and place in the same directory.
 - Run SSOL.jar
 
-# Inputs
+## Inputs
 The error handling is really weak because I didn't have much time to code this, so make sure you follow every one of these instructions.
 
 Only enter course ID on the left. Each course should be separated by a break. For example, if I want to sign up for the courses "55555", "43434", and "12312", I will type in:
@@ -31,6 +31,6 @@ Interval is the time (in milliseconds) interval between successive tries. SSOL b
 
 Tries is the number of times it tries to sign up for the courses on the left.
 
-# Built Using
+## Built Using
 - Selenium IDE
 
