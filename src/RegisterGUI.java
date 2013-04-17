@@ -22,6 +22,8 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.JPasswordField;
 
+import org.openqa.selenium.NoSuchElementException;
+
 public class RegisterGUI extends JFrame {
 
 	private JPanel contentPane;
@@ -82,7 +84,8 @@ public class RegisterGUI extends JFrame {
 
 		txtrInputCourseId = new JTextArea();
 		txtrInputCourseId.setLineWrap(true);
-		txtrInputCourseId.setText("Enter Call Numbers here, followed by breaks.");
+		txtrInputCourseId
+				.setText("Enter Call Numbers here, followed by breaks.");
 		scrollPane.setViewportView(txtrInputCourseId);
 
 		lblUni = new JLabel("UNI");
@@ -183,8 +186,13 @@ public class RegisterGUI extends JFrame {
 			register = new Register(username, password, courses,
 					"https://ssol.columbia.edu", millis);
 			while (tries > 0) {
-				tries--;
-				register.run();
+				try {
+					tries--;
+					register.run();
+				} catch (NoSuchElementException e1) {
+					// TODO Auto-generated catch block
+					continue;
+				}
 			}
 		}
 	}

@@ -101,14 +101,14 @@ public class Register {
 		return kill;
 	}
 
-	public void run() {
+	public void run() throws NoSuchElementException{
 		if (!killCode()) {
 			login();
 			goToRegistration();
 			for (int courseID : courses) {
 				searchAndRegister(courseID);
 				try {
-					Thread.sleep(3000);
+					Thread.sleep(500);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -118,7 +118,7 @@ public class Register {
 		}
 	}
 
-	private void login() {
+	private void login() throws NoSuchElementException{
 		driver.get(startURL);
 		WebElement usernameElement = driver.findElement(By.name(USERNAME_FIND));
 		usernameElement.sendKeys(username);
@@ -127,7 +127,7 @@ public class Register {
 		usernameElement.submit();
 	}
 
-	private void goToRegistration() {
+	private void goToRegistration() throws NoSuchElementException{
 		WebElement registrationLink = driver.findElement(By
 				.linkText(REGISTRATION_LINK_TEXT));
 		registrationLink.click();
@@ -157,7 +157,7 @@ public class Register {
 		}
 	}
 
-	private void searchAndRegister(int classID) {
+	private void searchAndRegister(int classID) throws NoSuchElementException{
 		WebElement searchLink = driver.findElement(By.linkText(SEARCH_FIND));
 		searchLink.click();
 
@@ -186,7 +186,7 @@ public class Register {
 		}
 	}
 
-	private void timer(long millis) {
+	private void timer(long millis) throws NoSuchElementException{
 		try {
 			Thread.sleep(millis);
 		} catch (InterruptedException e) {
