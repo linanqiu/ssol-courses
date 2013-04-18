@@ -122,7 +122,7 @@ public class Register {
 
 	private void blockCheck() {
 		if (driver.getPageSource().contains(IP_BLOCKED)) {
-			timer(900000);
+			timer(3600000);
 		}
 	}
 
