@@ -18,6 +18,8 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.NoSuchElementException;
 
+import com.gargoylesoftware.htmlunit.BrowserVersion;
+
 public class Register {
 
 	private String username;
@@ -54,28 +56,8 @@ public class Register {
 		this.courses = courses;
 		this.startURL = startURL;
 		this.millis = millis;
-		driver = new ChromeDriver();
-		// cal = Calendar.getInstance();
-		// df = new SimpleDateFormat("HHmm");
+		driver = new HtmlUnitDriver(true);
 	}
-
-	// public void timer(int time) {
-	// this.time = Integer.parseInt(df.format(cal.getTime()));
-	// boolean continueLoop = true;
-	// while (continueLoop) {
-	// if (this.time == time) {
-	// run();
-	// continueLoop = false;
-	// } else {
-	// try {
-	// Thread.sleep(10000);
-	// } catch (InterruptedException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// }
-	// }
-	// }
-	// }
 
 	private boolean killCode() {
 		boolean kill = true;
@@ -104,9 +86,13 @@ public class Register {
 
 	public void run() throws NoSuchElementException {
 		if (!killCode()) {
+			System.out.println("Started");
 			login();
+			System.out.println("login complete");
 			blockCheck();
+			System.out.println("blockCheck complete");
 			goToRegistration();
+			System.out.println("goToRegistration complete");
 			for (int courseID : courses) {
 				searchAndRegister(courseID);
 				try {
@@ -139,14 +125,14 @@ public class Register {
 		WebElement registrationLink = driver.findElement(By
 				.linkText(REGISTRATION_LINK_TEXT));
 		registrationLink.click();
-
+				
 		try {
 			WebElement fallElement = driver.findElement(By.xpath(FALL_ACCEPT));
 			fallElement.click();
 		} catch (NoSuchElementException e1) {
 			System.out.println("No double option.");
 		}
-
+		
 		try {
 			WebElement agreeElement1 = driver.findElement(By
 					.name(VISA_AGREEMENT_NAME1));
