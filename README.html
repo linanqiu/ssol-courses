@@ -276,4 +276,40 @@ pre {
     background-color: transparent;
     border: none; }
 </style><body><h1>ssol-courses</h1>
-<p>Register for courses on SSOL Columbia</p></body></html>
+<p>Register for courses on Columbia SSOL</p>
+<h2>Team Members</h2>
+<ul>
+<li>Linan Qiu (lq2137)</li>
+<li>Xingzhou He (xh2187)</li>
+</ul>
+<h2>Features</h2>
+<ul>
+<li>Automatically tries to get courses on SSOL</li>
+<li>Pick courses from the Columbia Bulletin</li>
+<li>Parses current schedule and adds courses using a GUI</li>
+<li>Keeps retrying for courses until you get the courses</li>
+<li>Optimal timing to avoid having IP blocked</li>
+<li>Wait timer for IP blocking</li>
+</ul>
+<h2>Dependencies</h2>
+<h3>Selenium</h3>
+<p>We will be using the Selenium library for interactions with the site. It saves a lot of time in web automation.</p>
+<h3>Java</h3>
+<p>Cross platform compatibility</p>
+<h2>Homework Requirements</h2>
+<h3>Red Features</h3>
+<h4>Interfaces</h4>
+<p>Interfaces will be used to define courses fetched from the bulletin. We will probably implement multithreading somewhere, so that's another interface. </p>
+<h4>Inheritance</h4>
+<p>Selenium features different <code>WebDrivers</code> for automation. We are using <code>HtmlUnitDriver</code>, a subclass of <code>WebDriver</code> that is a minimalist embedded "browser" that does not require the presence of a browser (unlike <code>ChromeDriver</code>, <code>FirefoxDriver</code> etc)</p>
+<h3>Blue Features</h3>
+<h4>Java Graphics</h4>
+<p>Because we want our app to be used by people other than computer science majors. Also, my girlfriend wants to use this.</p>
+<h4>Networking</h4>
+<p>Because we interact with the site.</p>
+<h4>Multithreading</h4>
+<p>Because we want things to run fast</p>
+<h4>Advanced Java</h4>
+<p>We are using external libraries. </p>
+<h2>Work Breakdown</h2>
+<p>We will collaborate on GitHub. One of us will work on getting the Bulletin fetcher, while the other works on the SSOL component.</p></body></html>

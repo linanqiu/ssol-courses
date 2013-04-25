@@ -1,36 +1,49 @@
 ssol-courses
 ============
 
-Register for courses on SSOL Columbia
+https://github.com/linanqiu/ssol-courses
 
-## Prerequisites
-- Decent JRE
-- Mac OSX. Sorry Windows users. Didn't have time to build one for you.
+Register for courses on Columbia SSOL
 
-## To Run
-- Download SSOL.jar
-- Download ChromeDriver and place in the same directory.
-- Run SSOL.jar
+## Team Members
+- Linan Qiu (lq2137)
+- Xingzhou He (xh2187)
 
-## Inputs
-The error handling is really weak because I didn't have much time to code this, so make sure you follow every one of these instructions.
+## Features
+- Automatically tries to get courses on SSOL
+- Pick courses from the Columbia Bulletin
+- Parses current schedule and adds courses using a GUI
+- Keeps retrying for courses until you get the courses
+- Optimal timing to avoid having IP blocked
+- Wait timer for IP blocking
 
-Only enter course ID on the left. Each course should be separated by a break. For example, if I want to sign up for the courses "55555", "43434", and "12312", I will type in:
+## Dependencies
+### Selenium
+We will be using the Selenium library for interactions with the site. It saves a lot of time in web automation.
 
-    55555
-    43434
-    12312
+### Java
+Cross platform compatibility
 
-and nothing more.
+## Homework Requirements
+### Red Features
+#### Interfaces
+Interfaces will be used to define courses fetched from the bulletin. We will probably implement multithreading somewhere, so that's another interface. 
 
-Enter your UNI and password. This should be a no brainer.
+#### Inheritance
+Selenium features different `WebDrivers` for automation. We are using `HtmlUnitDriver`, a subclass of `WebDriver` that is a minimalist embedded "browser" that does not require the presence of a browser (unlike `ChromeDriver`, `FirefoxDriver` etc)
 
-Interval is the time (in milliseconds) interval between successive tries. SSOL blocks you if you log in too often, and I have no intention (public at least) to spoof the system. Also, don't abuse the system lest you clog it (and bar me from signing up for my own classes). 
+### Blue Features
+#### Java Graphics
+Because we want our app to be used by people other than computer science majors. Also, my girlfriend wants to use this.
 
-**Interval should at least be 20000. If you don't want to risk a ban, put it at 60000. You are asking for it if you place a 1 there.**
+#### Networking
+Because we interact with the site.
 
-Tries is the number of times it tries to sign up for the courses on the left.
+#### Multithreading
+Because we want things to run fast
 
-## Built Using
-- Selenium IDE
+#### Advanced Java
+We are using external libraries. 
 
+## Work Breakdown
+We will collaborate on GitHub. One of us will work on getting the Bulletin fetcher, while the other works on the SSOL component.
