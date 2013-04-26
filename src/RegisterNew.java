@@ -3,6 +3,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,6 +12,8 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.htmlunit.*;
 
+import com.gargoylesoftware.htmlunit.ElementNotFoundException;
+
 public class RegisterNew {
 
 	private WebDriver driver;
@@ -18,6 +21,7 @@ public class RegisterNew {
 	private String password;
 	private String baseURLString;
 	private boolean summerOption;
+	private ArrayList<Integer> courseIDs;
 
 	/**
 	 * constructs a new Register backend using a given username and password
@@ -28,6 +32,8 @@ public class RegisterNew {
 	public RegisterNew(String username, String password) {
 		baseURLString = "https://ssol.columbia.edu/";
 
+		// here only for testing.
+		this.courseIDs = new ArrayList<Integer>();
 		this.username = "lq2137";
 		this.password = "Trimalchio9010";
 		this.summerOption = true;
@@ -38,6 +44,7 @@ public class RegisterNew {
 		login();
 		goToRegistration();
 		summerOption();
+		visaAgreement();
 	}
 
 	/**
@@ -80,38 +87,121 @@ public class RegisterNew {
 
 	/**
 	 * checks for the option to select for summer school. depending on the
-	 * boolean summerOption, choose accordingly.
-	 * 
-	 * THIS IS STILL WORK IN PROGRESS. HAVEN'T ACCOUNTED FOR NO SUMMER OPTION
-	 * YET. LET ME CONTINUE WORKING ON THIS.
+	 * boolean summerOption, choose accordingly. this accounts for the lack of a
+	 * summer option, in which case sessionForm will not be found.
 	 */
 	private void summerOption() {
 
-		// finds the number of forms for "welcome". if there's summer school,
-		// the size of this list will be 2.
-		List<WebElement> sessionForm = driver.findElements(By
-				.cssSelector("form[name=welcome]"));
+		try {
+			// finds the number of forms for "welcome". if there's summer
+			// school, the size of this list will be 2.
+			List<WebElement> sessionForm = driver.findElements(By
+					.cssSelector("form[name=welcome]"));
+			if (sessionForm.size() == 1) {
 
-		if (sessionForm.size() == 1) {
-
-			// only one session available
-			WebElement sessionSubmit = sessionForm.get(0).findElement(
-					By.cssSelector("input[type=submit]"));
-			sessionSubmit.submit();
-		} else if (sessionForm.size() == 2) {
-			if (summerOption == true) {
+				// only one session available
 				WebElement sessionSubmit = sessionForm.get(0).findElement(
 						By.cssSelector("input[type=submit]"));
 				sessionSubmit.submit();
+			} else if (sessionForm.size() == 2) {
+				if (summerOption == true) {
+					WebElement sessionSubmit = sessionForm.get(0).findElement(
+							By.cssSelector("input[type=submit]"));
+					sessionSubmit.submit();
+				} else {
+					WebElement sessionSubmit = sessionForm.get(1).findElement(
+							By.cssSelector("input[type=submit]"));
+					sessionSubmit.submit();
+				}
 			} else {
-				WebElement sessionSubmit = sessionForm.get(1).findElement(
-						By.cssSelector("input[type=submit]"));
-				sessionSubmit.submit();
-			}
-		} else {
-			System.out.println("You shouldn't be here.");
-		}
 
+				// will never be reached
+			}
+		} catch (ElementNotFoundException e) {
+
+			// if the element is not found, that means no summer session is
+			// available. go on with the program.
+
+		}
+	}
+
+	/**
+	 * international students have to click on the visa agreement. this method
+	 * does that automatically. if, however, the student is american, the method
+	 * checks if we are already on the registration page.
+	 */
+	private void visaAgreement() {
+
+		// try and click on the visa agreement options
+		try {
+			WebElement visaAgreementElement_1 = driver.findElement(By
+					.name("tran[1]_agree"));
+			WebElement visaAgreementElement_2 = driver.findElement(By
+					.name("tran[1]_fj1"));
+
+			visaAgreementElement_1.click();
+			visaAgreementElement_2.click();
+
+			visaAgreementElement_2.submit();
+		} catch (NoSuchElementException e) {
+
+			// in case these elements don't exist, we check if we are already on
+			// the registration page.
+			try {
+				driver.findElement(By.className("clsDataGridTitle"));
+			} catch (NoSuchElementException e1) {
+
+				// you are kind of fucked here. you are in the middle of
+				// nowhere.
+				e.printStackTrace();
+			}
+		}
+	}
+
+	/**
+	 * registers for the specified course with callnumber courseID. this method
+	 * is intended to be run multiple times according to the ArrayList<Integer
+	 * courseIDs
+	 * 
+	 * @param courseID
+	 */
+	private void searchAndRegister(int courseID) {
+
+		// finds the link for search class and clicks it
+		WebElement searchLink = driver.findElement(By.linkText("Search Class"));
+		searchLink.click();
+
+		// searches for the specified courseID
+		WebElement searchElement = driver.findElement(By.name("tran[1]_ss"));
+		searchElement.sendKeys(String.valueOf(courseID));
+		searchElement.submit();
+
+		// searches for the register button
+		List<WebElement> registerElement = driver.findElements(By
+				.className("regb"));
+
+		// if the button is not found, no available class is found
+		if (registerElement.size() == 0) {
+
+			// goes back to the registration page
+			System.out.println("No available class found for " + courseID);
+			driver.findElement(By.linkText("Back To Registration")).click();
+		} else {
+
+			// registers for the class
+			registerElement.get(0).click();
+			WebElement addClassElement = driver.findElement(By
+					.name("tran[1]_act"));
+			addClassElement.click();
+
+			// checks if registration is successful
+			try {
+				WebElement sucessElement = driver.findElement(By
+						.cssSelector("div.msgs b"));
+			} catch (NoSuchElementException e) {
+				System.out.println("Unsuccessful for " + courseID);
+			}
+		}
 	}
 
 	/**
