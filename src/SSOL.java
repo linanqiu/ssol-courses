@@ -5,22 +5,25 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.openqa.selenium.*;
 import org.openqa.selenium.htmlunit.*;
+import org.openqa.selenium.support.ui.Select;
 
 import com.gargoylesoftware.htmlunit.ElementNotFoundException;
 
-public class RegisterNew {
+public class SSOL {
 
 	private WebDriver driver;
 	private String username;
 	private String password;
 	private String baseURLString;
-	private boolean summerOption;
+	private String semesterOption;
 	private ArrayList<Integer> courseIDs;
+	private ArrayList<String> currentCourses;
 
 	/**
 	 * constructs a new Register backend using a given username and password
@@ -28,17 +31,19 @@ public class RegisterNew {
 	 * @param username
 	 * @param password
 	 */
-	public RegisterNew(String username, String password) {
+	public SSOL(String username, String password) {
 
 		System.out.println("RegisterNew object starting construction.");
 
 		baseURLString = "https://ssol.columbia.edu/";
 
+		currentCourses = new ArrayList<String>();
+
 		// here only for testing.
 		this.courseIDs = new ArrayList<Integer>();
 		this.username = "lq2137";
 		this.password = "Trimalchio9010";
-		this.summerOption = true;
+		this.semesterOption = "20132";
 
 		// enables javascript in the HtmlUnitDriver
 		driver = new HtmlUnitDriver(true);
@@ -46,9 +51,14 @@ public class RegisterNew {
 
 		System.out.println("RegisterNew object constructed.");
 
+		// this should be done prior to section selection
 		login();
+		currentCourses();
 		goToRegistration();
-		summerOption();
+		semesterOptions();
+
+		// this should be done after section selection
+		chooseSemester(semesterOption);
 		visaAgreement();
 		searchAndRegister(29567);
 	}
@@ -78,6 +88,57 @@ public class RegisterNew {
 	}
 
 	/**
+	 * goes to the student schedule page and returns an ArrayList<String> of the
+	 * course description of the courses the student currently has. this is only
+	 * accurate as of the previous day.
+	 * 
+	 * @return ArrayList<String> currentCourses
+	 */
+	private ArrayList<String> currentCourses() {
+
+		System.out.println("currentCourses starting.");
+
+		// gets the schedule link and takes the URL
+		WebElement scheduleLink = driver.findElement(By
+				.linkText("Student Schedule"));
+
+		String scheduleLinkString = decodeSSOLLink(scheduleLink.toString());
+
+		System.out.println("currentCourses: link decoded: "
+				+ scheduleLinkString);
+
+		// navigates to the student schedule page
+		driver.get(scheduleLinkString);
+
+		Select semesterSelect = new Select(driver.findElement(By
+				.cssSelector("select[name=\"tran[1]_term_id\"]")));
+		semesterSelect.selectByValue(semesterOption);
+		WebElement semesterUpdateView = driver.findElement(By
+				.cssSelector("input[value=\"Update View\"]"));
+		semesterUpdateView.click();
+
+		// gets the list of WebElements for courses
+		WebElement semesterDataGrid = driver.findElements(
+				By.cssSelector("table.DataGrid")).get(0);
+		List<WebElement> courseTrs = semesterDataGrid.findElements(By
+				.cssSelector("tr"));
+
+		// starts from 3 because the first 3 rows are no use. headers and other
+		// shit. so we start from the 4th one. counts till size() - 1 because
+		// the last row is useless too. then we add the text of each of
+		// them into the arraylist to be returned
+		for (int i = 3; i < courseTrs.size() - 1; i++) {
+			WebElement courseTd = courseTrs.get(i)
+					.findElements(By.cssSelector("td")).get(0);
+			currentCourses.add(courseTd.getText());
+			System.out.println("currentCourses: " + courseTd.getText()
+					+ " added");
+		}
+
+		return currentCourses;
+	}
+
+	/**
 	 * after arriving on homepage, goes to the registration link and clicks it.
 	 * did not use simple clicking here because HtmlUnitDriver does not decode
 	 * URLEncoding
@@ -103,54 +164,129 @@ public class RegisterNew {
 
 	}
 
-	/**
-	 * checks for the option to select for summer school. depending on the
-	 * boolean summerOption, choose accordingly. this accounts for the lack of a
-	 * summer option, in which case sessionForm will not be found.
+	/*
+	 * gets available semesters and returns them as a ArrayList<String>. This
+	 * will be in the form YYYYS, where YYYY is the year, and S is the number
+	 * for the semester. For example, Summer 2013 will be 20132, while Fall 2012
+	 * will be 20123.
 	 */
-	private void summerOption() {
+	private ArrayList<String> semesterOptions() {
 
-		System.out.println("summerOption started.");
+		// declares the ArrayList which will contain the semester options
+		ArrayList<String> semesterOptions = new ArrayList<String>();
 
-		try {
-			// finds the number of forms for "welcome". if there's summer
-			// school, the size of this list will be 2.
+		System.out.println("semesterChoice started");
+
+		// each semester occurs in a fieldset. hence we find the fieldset.
+		List<WebElement> semesterOptionFields = driver.findElements(By
+				.cssSelector("fieldset"));
+
+		System.out.println("semesterChoice: " + semesterOptionFields.size()
+				+ " semesters available");
+
+		if (semesterOptionFields.size() == 1) {
+
+			// if there is only one session available, only add the single
+			// sessionId to the semesterOptions ArrayList
+			WebElement sessionForm = driver.findElement(By
+					.cssSelector("form[name=welcome]"));
+
+			WebElement sessionId = sessionForm.findElement(By
+					.cssSelector("input[name=\"tran[1]_term_id\"]"));
+
+			semesterOption = sessionId.getAttribute("value");
+
+			semesterOptions.add(semesterOption);
+
+			System.out.println("semesterChoice: sessionId " + semesterOption
+					+ " is available");
+
+		} else {
+
+			// or else, find the multiple sessionForms, and for each of them,
+			// find their sessionIds and add them to the ArrayList
 			List<WebElement> sessionForm = driver.findElements(By
 					.cssSelector("form[name=welcome]"));
-			if (sessionForm.size() == 1) {
 
-				// only one session available
+			for (WebElement sessionFormElement : sessionForm) {
+				WebElement sessionId = sessionFormElement.findElement(By
+						.cssSelector("input[name=\"tran[1]_term_id\"]"));
 
-				System.out.println("summerOption: 1 session available.");
-
-				WebElement sessionSubmit = sessionForm.get(0).findElement(
-						By.cssSelector("input[type=submit]"));
-				sessionSubmit.submit();
-			} else if (sessionForm.size() == 2) {
-				if (summerOption == true) {
-
-					System.out.println("summerOption: 2 sessions available");
-
-					WebElement sessionSubmit = sessionForm.get(0).findElement(
-							By.cssSelector("input[type=submit]"));
-					sessionSubmit.submit();
-				} else {
-					WebElement sessionSubmit = sessionForm.get(1).findElement(
-							By.cssSelector("input[type=submit]"));
-					sessionSubmit.submit();
-				}
-			} else {
-
-				// will never be reached
+				semesterOptions.add(sessionId.getAttribute("value"));
 			}
-		} catch (ElementNotFoundException e) {
 
-			// if the element is not found, that means no summer session is
-			// available. go on with the program.
+			for (String semesterOption : semesterOptions) {
+				System.out.println("semesterChoice: sessionId "
+						+ semesterOption + " is available");
+			}
 
 		}
 
-		System.out.println("summerOption finished.");
+		// returns the answer
+		System.out.println("semesterChoice finished");
+
+		return semesterOptions;
+	}
+
+	/**
+	 * chooses the right semester
+	 **/
+	private void chooseSemester(String semesterChoice) {
+
+		System.out.println("chooseSemester started.");
+
+		System.out.println("chooseSemester: current URL: "
+				+ driver.getCurrentUrl());
+
+		List<WebElement> semesterOptionFields = driver.findElements(By
+				.cssSelector("fieldset"));
+
+		if (semesterOptionFields.size() == 1) {
+
+			System.out.println("chooseSemester: only 1 semester found");
+
+			WebElement sessionForm = driver.findElement(By
+					.cssSelector("form[name=welcome]"));
+
+			WebElement sessionFormSubmit = sessionForm.findElement(By
+					.cssSelector("input[name = \"tran[1]_act\"]"));
+
+			sessionFormSubmit.submit();
+
+		} else {
+
+			System.out
+					.println("chooseSemester: multiply semesters found. matching semester.");
+
+			List<WebElement> sessionForm = driver.findElements(By
+					.cssSelector("form[name=welcome]"));
+
+			WebElement sessionFormSubmit = null;
+
+			for (WebElement sessionFormElement : sessionForm) {
+				WebElement sessionFormId = sessionFormElement.findElement(By
+						.cssSelector("input[name=\"tran[1]_term_id\"]"));
+
+				if (sessionFormId.getAttribute("value").equals(semesterOption)) {
+
+					System.out
+							.println("chooseSemester: found matching session");
+
+					sessionFormSubmit = sessionFormElement.findElement(By
+							.cssSelector("input[name = \"tran[1]_act\"]"));
+				}
+			}
+
+			sessionFormSubmit.submit();
+
+			System.out.println("chooseSemester: " + semesterOption + " chosen");
+
+		}
+
+		System.out.println("chooseSemester: current URL: "
+				+ driver.getCurrentUrl());
+
+		System.out.println("chooseSemester finished.");
 	}
 
 	/**
@@ -164,9 +300,6 @@ public class RegisterNew {
 
 		// try and click on the visa agreement options
 		try {
-
-			System.out.println("visaAgreement: found visa agreement");
-
 			WebElement visaAgreementElement_1 = driver.findElement(By
 					.name("tran[1]_agree"));
 			WebElement visaAgreementElement_2 = driver.findElement(By
@@ -176,6 +309,9 @@ public class RegisterNew {
 			visaAgreementElement_2.click();
 
 			visaAgreementElement_2.submit();
+
+			System.out.println("visaAgreement: found visa agreement");
+
 		} catch (NoSuchElementException e) {
 
 			// in case these elements don't exist, we check if we are already on
@@ -202,7 +338,7 @@ public class RegisterNew {
 	 * @param courseID
 	 */
 	private void searchAndRegister(int courseID) {
-		
+
 		System.out.println("searchAndRegister started");
 
 		// finds the link for search class and clicks it
@@ -210,7 +346,7 @@ public class RegisterNew {
 
 		String searchLinkString = decodeSSOLLink(searchLink.toString());
 
-		System.out.println("searcAndRegister: link decoded: "
+		System.out.println("searchAndRegister: link decoded: "
 				+ searchLinkString);
 
 		driver.get(searchLinkString);
@@ -240,7 +376,7 @@ public class RegisterNew {
 					.toString());
 
 			driver.get(backToRegistrationLinkString);
-			
+
 			System.out.println("searchAndRegister: back to registration page");
 		} else {
 
@@ -293,6 +429,14 @@ public class RegisterNew {
 		}
 
 		return decodedLink;
+	}
+
+	public String getSemesterOption() {
+		return semesterOption;
+	}
+
+	public ArrayList<String> getCurrentCourses() {
+		return currentCourses;
 	}
 
 }
