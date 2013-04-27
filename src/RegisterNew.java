@@ -9,7 +9,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.openqa.selenium.*;
-import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.htmlunit.*;
 
 import com.gargoylesoftware.htmlunit.ElementNotFoundException;
@@ -30,6 +29,9 @@ public class RegisterNew {
 	 * @param password
 	 */
 	public RegisterNew(String username, String password) {
+
+		System.out.println("RegisterNew object starting construction.");
+
 		baseURLString = "https://ssol.columbia.edu/";
 
 		// here only for testing.
@@ -41,16 +43,22 @@ public class RegisterNew {
 		// enables javascript in the HtmlUnitDriver
 		driver = new HtmlUnitDriver(true);
 		driver.get(baseURLString);
+
+		System.out.println("RegisterNew object constructed.");
+
 		login();
 		goToRegistration();
 		summerOption();
 		visaAgreement();
+		searchAndRegister(29567);
 	}
 
 	/**
 	 * logs into the SSOL
 	 */
 	private void login() {
+
+		System.out.println("login starting");
 
 		// u_idField is the field for username
 		WebElement u_idField = driver.findElement(By
@@ -64,6 +72,9 @@ public class RegisterNew {
 		u_idField.sendKeys(username);
 		u_pwField.sendKeys(password);
 		u_pwField.submit();
+
+		System.out.println("login finished.");
+
 	}
 
 	/**
@@ -73,6 +84,8 @@ public class RegisterNew {
 	 */
 	private void goToRegistration() {
 
+		System.out.println("goToRegistration starting.");
+
 		// gets the registrationLink and takes the URL
 		WebElement registrationLink = driver.findElement(By
 				.linkText("Registration"));
@@ -80,8 +93,13 @@ public class RegisterNew {
 		String registrationLinkString = decodeSSOLLink(registrationLink
 				.toString());
 
+		System.out.println("goToRegistration: link decoded: "
+				+ registrationLinkString);
+
 		// navigates to the registration page
 		driver.get(registrationLinkString);
+
+		System.out.println("goToRegistration finished. ");
 
 	}
 
@@ -92,6 +110,8 @@ public class RegisterNew {
 	 */
 	private void summerOption() {
 
+		System.out.println("summerOption started.");
+
 		try {
 			// finds the number of forms for "welcome". if there's summer
 			// school, the size of this list will be 2.
@@ -100,11 +120,17 @@ public class RegisterNew {
 			if (sessionForm.size() == 1) {
 
 				// only one session available
+
+				System.out.println("summerOption: 1 session available.");
+
 				WebElement sessionSubmit = sessionForm.get(0).findElement(
 						By.cssSelector("input[type=submit]"));
 				sessionSubmit.submit();
 			} else if (sessionForm.size() == 2) {
 				if (summerOption == true) {
+
+					System.out.println("summerOption: 2 sessions available");
+
 					WebElement sessionSubmit = sessionForm.get(0).findElement(
 							By.cssSelector("input[type=submit]"));
 					sessionSubmit.submit();
@@ -123,6 +149,8 @@ public class RegisterNew {
 			// available. go on with the program.
 
 		}
+
+		System.out.println("summerOption finished.");
 	}
 
 	/**
@@ -132,8 +160,13 @@ public class RegisterNew {
 	 */
 	private void visaAgreement() {
 
+		System.out.println("visaAgreement started.");
+
 		// try and click on the visa agreement options
 		try {
+
+			System.out.println("visaAgreement: found visa agreement");
+
 			WebElement visaAgreementElement_1 = driver.findElement(By
 					.name("tran[1]_agree"));
 			WebElement visaAgreementElement_2 = driver.findElement(By
@@ -148,14 +181,17 @@ public class RegisterNew {
 			// in case these elements don't exist, we check if we are already on
 			// the registration page.
 			try {
+
+				System.out
+						.println("visaAgreement: already on registration page");
+
 				driver.findElement(By.className("clsDataGridTitle"));
 			} catch (NoSuchElementException e1) {
 
-				// you are kind of fucked here. you are in the middle of
-				// nowhere.
-				e.printStackTrace();
 			}
 		}
+
+		System.out.println("visaAgreement finished.");
 	}
 
 	/**
@@ -169,12 +205,20 @@ public class RegisterNew {
 
 		// finds the link for search class and clicks it
 		WebElement searchLink = driver.findElement(By.linkText("Search Class"));
-		searchLink.click();
+
+		String searchLinkString = decodeSSOLLink(searchLink.toString());
+
+		System.out.println("searcAndRegister: link decoded: "
+				+ searchLinkString);
+
+		driver.get(searchLinkString);
 
 		// searches for the specified courseID
 		WebElement searchElement = driver.findElement(By.name("tran[1]_ss"));
 		searchElement.sendKeys(String.valueOf(courseID));
 		searchElement.submit();
+
+		System.out.println("searchAndRegister: courseID sent");
 
 		// searches for the register button
 		List<WebElement> registerElement = driver.findElements(By
@@ -184,7 +228,9 @@ public class RegisterNew {
 		if (registerElement.size() == 0) {
 
 			// goes back to the registration page
-			System.out.println("No available class found for " + courseID);
+			System.out.println("searchAndRegister: " + courseID
+					+ " is not found.");
+
 			driver.findElement(By.linkText("Back To Registration")).click();
 		} else {
 
