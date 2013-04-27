@@ -202,6 +202,8 @@ public class RegisterNew {
 	 * @param courseID
 	 */
 	private void searchAndRegister(int courseID) {
+		
+		System.out.println("searchAndRegister started");
 
 		// finds the link for search class and clicks it
 		WebElement searchLink = driver.findElement(By.linkText("Search Class"));
@@ -231,7 +233,15 @@ public class RegisterNew {
 			System.out.println("searchAndRegister: " + courseID
 					+ " is not found.");
 
-			driver.findElement(By.linkText("Back To Registration")).click();
+			WebElement backToRegistrationLink = driver.findElement(By
+					.linkText("Back To Registration"));
+
+			String backToRegistrationLinkString = decodeSSOLLink(backToRegistrationLink
+					.toString());
+
+			driver.get(backToRegistrationLinkString);
+			
+			System.out.println("searchAndRegister: back to registration page");
 		} else {
 
 			// registers for the class
