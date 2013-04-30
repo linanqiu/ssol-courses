@@ -15,6 +15,12 @@ import org.openqa.selenium.support.ui.Select;
 
 import com.gargoylesoftware.htmlunit.ElementNotFoundException;
 
+/**
+ * A class to manipulate SSOL
+ * 
+ * @author linanqiu
+ * @uni lq2137
+ */
 public class SSOL {
 
 	private WebDriver driver;
@@ -33,7 +39,7 @@ public class SSOL {
 	 */
 	public SSOL(String username, String password) {
 
-		System.out.println("RegisterNew object starting construction.");
+		System.out.println("RegisterNew object called");
 
 		baseURLString = "https://ssol.columbia.edu/";
 
@@ -49,7 +55,7 @@ public class SSOL {
 		driver = new HtmlUnitDriver(true);
 		driver.get(baseURLString);
 
-		System.out.println("RegisterNew object constructed.");
+		System.out.println("RegisterNew object constructed");
 
 		// this should be done prior to section selection
 		login();
@@ -68,7 +74,7 @@ public class SSOL {
 	 */
 	private void login() {
 
-		System.out.println("login starting");
+		System.out.println("login started");
 
 		// u_idField is the field for username
 		WebElement u_idField = driver.findElement(By
@@ -83,7 +89,7 @@ public class SSOL {
 		u_pwField.sendKeys(password);
 		u_pwField.submit();
 
-		System.out.println("login finished.");
+		System.out.println("login started");
 
 	}
 
@@ -96,7 +102,7 @@ public class SSOL {
 	 */
 	private ArrayList<String> currentCourses() {
 
-		System.out.println("currentCourses starting.");
+		System.out.println("currentCourses started");
 
 		// gets the schedule link and takes the URL
 		WebElement scheduleLink = driver.findElement(By
@@ -145,7 +151,7 @@ public class SSOL {
 	 */
 	private void goToRegistration() {
 
-		System.out.println("goToRegistration starting.");
+		System.out.println("goToRegistration started");
 
 		// gets the registrationLink and takes the URL
 		WebElement registrationLink = driver.findElement(By
@@ -160,7 +166,7 @@ public class SSOL {
 		// navigates to the registration page
 		driver.get(registrationLinkString);
 
-		System.out.println("goToRegistration finished. ");
+		System.out.println("goToRegistration started ");
 
 	}
 
@@ -233,7 +239,7 @@ public class SSOL {
 	 **/
 	private void chooseSemester(String semesterChoice) {
 
-		System.out.println("chooseSemester started.");
+		System.out.println("chooseSemester started");
 
 		System.out.println("chooseSemester: current URL: "
 				+ driver.getCurrentUrl());
@@ -255,8 +261,7 @@ public class SSOL {
 
 		} else {
 
-			System.out
-					.println("chooseSemester: multiply semesters found. matching semester.");
+			System.out.println("chooseSemester: multiple semesters found");
 
 			List<WebElement> sessionForm = driver.findElements(By
 					.cssSelector("form[name=welcome]"));
@@ -286,7 +291,7 @@ public class SSOL {
 		System.out.println("chooseSemester: current URL: "
 				+ driver.getCurrentUrl());
 
-		System.out.println("chooseSemester finished.");
+		System.out.println("chooseSemester started");
 	}
 
 	/**
@@ -296,7 +301,7 @@ public class SSOL {
 	 */
 	private void visaAgreement() {
 
-		System.out.println("visaAgreement started.");
+		System.out.println("visaAgreement started");
 
 		// try and click on the visa agreement options
 		try {
@@ -327,7 +332,7 @@ public class SSOL {
 			}
 		}
 
-		System.out.println("visaAgreement finished.");
+		System.out.println("visaAgreement started");
 	}
 
 	/**
@@ -365,9 +370,11 @@ public class SSOL {
 		// if the button is not found, no available class is found
 		if (registerElement.size() == 0) {
 
+			// TODO: account for case where course conflicts / already exists
+
 			// goes back to the registration page
 			System.out.println("searchAndRegister: " + courseID
-					+ " is not found.");
+					+ " is not found");
 
 			WebElement backToRegistrationLink = driver.findElement(By
 					.linkText("Back To Registration"));
@@ -386,12 +393,17 @@ public class SSOL {
 					.name("tran[1]_act"));
 			addClassElement.click();
 
+			System.out.println("searchAndRegister: registration request sent");
+
 			// checks if registration is successful
 			try {
 				WebElement sucessElement = driver.findElement(By
 						.cssSelector("div.msgs b"));
+				System.out.println("searchAndRegister: " + courseID
+						+ " registration successful");
 			} catch (NoSuchElementException e) {
-				System.out.println("Unsuccessful for " + courseID);
+				System.out.println("searchAndRegister: " + courseID
+						+ " registration is unsuccessful");
 			}
 		}
 	}
@@ -438,5 +450,4 @@ public class SSOL {
 	public ArrayList<String> getCurrentCourses() {
 		return currentCourses;
 	}
-
 }
