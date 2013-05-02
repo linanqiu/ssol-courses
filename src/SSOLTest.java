@@ -1,4 +1,3 @@
-
 public class SSOLTest {
 
 	/**
@@ -6,7 +5,7 @@ public class SSOLTest {
 	 */
 	public static void main(String[] args) {
 		SSOL test = new SSOL(null, null);
-		
+
 	}
 
 }

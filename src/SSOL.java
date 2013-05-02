@@ -10,65 +10,60 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.htmlunit.*;
 import org.openqa.selenium.support.ui.Select;
 
 import com.gargoylesoftware.htmlunit.ElementNotFoundException;
 
+/**
+ * A class to manipulate SSOL
+ * 
+ * @author linanqiu
+ * @uni lq2137
+ */
 public class SSOL {
 
 	private WebDriver driver;
 	private String username;
 	private String password;
 	private String baseURLString;
-	private String semesterOption;
+	private String semesterChoice;
 	private ArrayList<Integer> courseIDs;
-	private ArrayList<String> currentCourses;
+	private ArrayList<String> currentSections;
+	public final int REGISTRATION_SUCCESSFUL = 1;
+	public final int REGISTRATION_UNSUCCESSFUL = 2;
+	public final int SECTION_NOT_FOUND = 3;
+	private boolean superUser = false;
 
 	/**
-	 * constructs a new Register backend using a given username and password
+	 * constructs a new SSOL backend using a given username and password
 	 * 
 	 * @param username
 	 * @param password
 	 */
 	public SSOL(String username, String password) {
 
-		System.out.println("RegisterNew object starting construction.");
-
+		System.out.println("SSOL object called");
 		baseURLString = "https://ssol.columbia.edu/";
+		this.username = username;
+		this.password = password;
 
-		currentCourses = new ArrayList<String>();
-
-		// here only for testing.
-		this.courseIDs = new ArrayList<Integer>();
-		this.username = "lq2137";
-		this.password = "Trimalchio9010";
-		this.semesterOption = "20132";
+		currentSections = new ArrayList<String>();
 
 		// enables javascript in the HtmlUnitDriver
 		driver = new HtmlUnitDriver(true);
-		driver.get(baseURLString);
 
-		System.out.println("RegisterNew object constructed.");
-
-		// this should be done prior to section selection
-		login();
-		currentCourses();
-		goToRegistration();
-		semesterOptions();
-
-		// this should be done after section selection
-		chooseSemester(semesterOption);
-		visaAgreement();
-		searchAndRegister(29567);
+		System.out.println("SSOL object constructed");
 	}
 
 	/**
 	 * logs into the SSOL
 	 */
-	private void login() {
+	public void login() throws NoSuchElementException {
+		driver.get(baseURLString);
 
-		System.out.println("login starting");
+		System.out.println("login started");
 
 		// u_idField is the field for username
 		WebElement u_idField = driver.findElement(By
@@ -83,7 +78,7 @@ public class SSOL {
 		u_pwField.sendKeys(password);
 		u_pwField.submit();
 
-		System.out.println("login finished.");
+		System.out.println("login finished");
 
 	}
 
@@ -94,9 +89,9 @@ public class SSOL {
 	 * 
 	 * @return ArrayList<String> currentCourses
 	 */
-	private ArrayList<String> currentCourses() {
+	public ArrayList<String> currentSections() throws NoSuchElementException {
 
-		System.out.println("currentCourses starting.");
+		System.out.println("currentCourses started");
 
 		// gets the schedule link and takes the URL
 		WebElement scheduleLink = driver.findElement(By
@@ -112,7 +107,7 @@ public class SSOL {
 
 		Select semesterSelect = new Select(driver.findElement(By
 				.cssSelector("select[name=\"tran[1]_term_id\"]")));
-		semesterSelect.selectByValue(semesterOption);
+		semesterSelect.selectByValue(semesterChoice);
 		WebElement semesterUpdateView = driver.findElement(By
 				.cssSelector("input[value=\"Update View\"]"));
 		semesterUpdateView.click();
@@ -130,12 +125,14 @@ public class SSOL {
 		for (int i = 3; i < courseTrs.size() - 1; i++) {
 			WebElement courseTd = courseTrs.get(i)
 					.findElements(By.cssSelector("td")).get(0);
-			currentCourses.add(courseTd.getText());
+			currentSections.add(courseTd.getText());
 			System.out.println("currentCourses: " + courseTd.getText()
 					+ " added");
 		}
 
-		return currentCourses;
+		System.out.println("currentCourses finished");
+
+		return currentSections;
 	}
 
 	/**
@@ -143,9 +140,12 @@ public class SSOL {
 	 * did not use simple clicking here because HtmlUnitDriver does not decode
 	 * URLEncoding
 	 */
-	private void goToRegistration() {
+	public void goToRegistration() throws NoSuchElementException {
 
-		System.out.println("goToRegistration starting.");
+		System.out.println("goToRegistration started");
+
+		System.out.println("goToRegistration: current URL: "
+				+ driver.getCurrentUrl());
 
 		// gets the registrationLink and takes the URL
 		WebElement registrationLink = driver.findElement(By
@@ -160,7 +160,7 @@ public class SSOL {
 		// navigates to the registration page
 		driver.get(registrationLinkString);
 
-		System.out.println("goToRegistration finished. ");
+		System.out.println("goToRegistration started ");
 
 	}
 
@@ -170,7 +170,7 @@ public class SSOL {
 	 * for the semester. For example, Summer 2013 will be 20132, while Fall 2012
 	 * will be 20123.
 	 */
-	private ArrayList<String> semesterOptions() {
+	public ArrayList<String> semesterOptions() throws NoSuchElementException {
 
 		// declares the ArrayList which will contain the semester options
 		ArrayList<String> semesterOptions = new ArrayList<String>();
@@ -194,7 +194,7 @@ public class SSOL {
 			WebElement sessionId = sessionForm.findElement(By
 					.cssSelector("input[name=\"tran[1]_term_id\"]"));
 
-			semesterOption = sessionId.getAttribute("value");
+			String semesterOption = sessionId.getAttribute("value");
 
 			semesterOptions.add(semesterOption);
 
@@ -231,9 +231,12 @@ public class SSOL {
 	/**
 	 * chooses the right semester
 	 **/
-	private void chooseSemester(String semesterChoice) {
+	public void chooseSemester(String semesterChoice)
+			throws NoSuchElementException {
 
-		System.out.println("chooseSemester started.");
+		this.semesterChoice = semesterChoice;
+
+		System.out.println("chooseSemester started");
 
 		System.out.println("chooseSemester: current URL: "
 				+ driver.getCurrentUrl());
@@ -255,8 +258,7 @@ public class SSOL {
 
 		} else {
 
-			System.out
-					.println("chooseSemester: multiply semesters found. matching semester.");
+			System.out.println("chooseSemester: multiple semesters found");
 
 			List<WebElement> sessionForm = driver.findElements(By
 					.cssSelector("form[name=welcome]"));
@@ -267,7 +269,7 @@ public class SSOL {
 				WebElement sessionFormId = sessionFormElement.findElement(By
 						.cssSelector("input[name=\"tran[1]_term_id\"]"));
 
-				if (sessionFormId.getAttribute("value").equals(semesterOption)) {
+				if (sessionFormId.getAttribute("value").equals(semesterChoice)) {
 
 					System.out
 							.println("chooseSemester: found matching session");
@@ -279,14 +281,14 @@ public class SSOL {
 
 			sessionFormSubmit.submit();
 
-			System.out.println("chooseSemester: " + semesterOption + " chosen");
+			System.out.println("chooseSemester: " + semesterChoice + " chosen");
 
 		}
 
 		System.out.println("chooseSemester: current URL: "
 				+ driver.getCurrentUrl());
 
-		System.out.println("chooseSemester finished.");
+		System.out.println("chooseSemester finished");
 	}
 
 	/**
@@ -294,9 +296,9 @@ public class SSOL {
 	 * does that automatically. if, however, the student is american, the method
 	 * checks if we are already on the registration page.
 	 */
-	private void visaAgreement() {
+	public void visaAgreement() throws NoSuchElementException {
 
-		System.out.println("visaAgreement started.");
+		System.out.println("visaAgreement started");
 
 		// try and click on the visa agreement options
 		try {
@@ -327,7 +329,7 @@ public class SSOL {
 			}
 		}
 
-		System.out.println("visaAgreement finished.");
+		System.out.println("visaAgreement started");
 	}
 
 	/**
@@ -337,7 +339,7 @@ public class SSOL {
 	 * 
 	 * @param courseID
 	 */
-	private void searchAndRegister(int courseID) {
+	public int searchAndRegister(int courseID) throws NoSuchElementException {
 
 		System.out.println("searchAndRegister started");
 
@@ -365,9 +367,11 @@ public class SSOL {
 		// if the button is not found, no available class is found
 		if (registerElement.size() == 0) {
 
+			// TODO: account for case where course conflicts / already exists
+
 			// goes back to the registration page
 			System.out.println("searchAndRegister: " + courseID
-					+ " is not found.");
+					+ " is not found");
 
 			WebElement backToRegistrationLink = driver.findElement(By
 					.linkText("Back To Registration"));
@@ -378,6 +382,9 @@ public class SSOL {
 			driver.get(backToRegistrationLinkString);
 
 			System.out.println("searchAndRegister: back to registration page");
+
+			return SECTION_NOT_FOUND;
+
 		} else {
 
 			// registers for the class
@@ -386,12 +393,21 @@ public class SSOL {
 					.name("tran[1]_act"));
 			addClassElement.click();
 
+			System.out.println("searchAndRegister: registration request sent");
+
 			// checks if registration is successful
 			try {
 				WebElement sucessElement = driver.findElement(By
 						.cssSelector("div.msgs b"));
+				System.out.println("searchAndRegister: " + courseID
+						+ " registration successful");
+
+				return REGISTRATION_SUCCESSFUL;
+
 			} catch (NoSuchElementException e) {
-				System.out.println("Unsuccessful for " + courseID);
+				System.out.println("searchAndRegister: " + courseID
+						+ " registration is unsuccessful");
+				return REGISTRATION_UNSUCCESSFUL;
 			}
 		}
 	}
@@ -431,12 +447,49 @@ public class SSOL {
 		return decodedLink;
 	}
 
-	public String getSemesterOption() {
-		return semesterOption;
+	/**
+	 * gets the semesterChoice of this ssol
+	 * 
+	 * @return semesterChoice the semester chosen by the user
+	 */
+	public String getSemesterChoice() {
+		return semesterChoice;
 	}
 
-	public ArrayList<String> getCurrentCourses() {
-		return currentCourses;
+	/**
+	 * gets currentSections, the sections that the user is currently enrolled in
+	 * as an ArrayList<String>
+	 * 
+	 * @return currentSections
+	 */
+	public ArrayList<String> getCurrentSections() {
+		return currentSections;
 	}
 
+	/**
+	 * implements a killcode that can stop users from signing up for courses
+	 * 
+	 * @return true or false depending on the killCode status
+	 */
+	public boolean killCode() {
+		if (superUser) {
+			return false;
+		} else {
+			WebDriver killCodeDriver = new HtmlUnitDriver(true);
+			killCodeDriver
+					.get("http://columbia.edu/~lq2137/killcode/killcode.html");
+			if (killCodeDriver.getPageSource().toLowerCase().indexOf("false") > -1) {
+				return false;
+			} else {
+				return true;
+			}
+		}
+	}
+
+	/**
+	 * makes the user a superUser, ignoring the killCode
+	 */
+	public void setSuperUser() {
+		superUser = true;
+	}
 }
