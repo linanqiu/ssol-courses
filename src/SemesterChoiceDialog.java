@@ -75,6 +75,12 @@ public class SemesterChoiceDialog extends JDialog {
 		okButton.addActionListener(new ButtonListener());
 	}
 
+	/**
+	 * allows this dialog to be fed the options for the semester
+	 * 
+	 * @param semesterOptions
+	 *            the options that the user has
+	 */
 	public void setSemesterOptions(ArrayList<String> semesterOptions) {
 		this.semesterOptions = semesterOptions;
 		for (String semester : semesterOptions) {
@@ -95,6 +101,9 @@ public class SemesterChoiceDialog extends JDialog {
 		}
 	}
 
+	/**
+	 * @return semesterChoice the choice that the user picked
+	 */
 	public String getSemesterChoice() {
 		return semesterChoice;
 	}

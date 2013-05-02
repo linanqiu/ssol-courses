@@ -107,13 +107,24 @@ public class LoginDialog extends JDialog {
 		loginButton.addActionListener(buttonListener);
 	}
 
+	/**
+	 * returns uni
+	 * 
+	 * @return uni the uni the user entered
+	 */
 	public String getUni() {
 		return uni;
 	}
 
+	/**
+	 * returns the password
+	 * 
+	 * @return password the password the user entered
+	 */
 	public String getPassword() {
 		return password;
 	}
+
 	public class ButtonListener implements ActionListener {
 
 		@Override

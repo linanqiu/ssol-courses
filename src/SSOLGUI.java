@@ -8,8 +8,13 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
@@ -19,6 +24,7 @@ import javax.swing.JTree;
 import javax.swing.JScrollPane;
 import javax.swing.JList;
 import javax.swing.JTextArea;
+import javax.swing.SwingWorker;
 
 import com.michaelbaranov.microba.calendar.DatePicker;
 import com.michaelbaranov.microba.common.MicrobaComponent;
@@ -26,9 +32,20 @@ import javax.swing.JSpinner;
 import javax.swing.JCheckBox;
 import java.awt.Color;
 import java.awt.SystemColor;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
 import javax.swing.SwingConstants;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 
 public class SSOLGUI {
 
@@ -55,6 +72,14 @@ public class SSOLGUI {
 	private JLabel lblUserUni;
 	private JLabel lblSemesterChoice;
 	private JLabel lblBlockStatusIndicator;
+	public static final int[] KONAMI = { KeyEvent.VK_UP, KeyEvent.VK_UP,
+			KeyEvent.VK_DOWN, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT,
+			KeyEvent.VK_RIGHT, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT,
+			KeyEvent.VK_A, KeyEvent.VK_B, KeyEvent.VK_ENTER };
+	private JLabel lblHugeShoutoutsTo;
+	private JLabel lblLinanQiu;
+	private JLabel lblXingzhouHe;
+	private JPanel panelCredits;
 
 	/**
 	 * Launch the application.
@@ -79,6 +104,10 @@ public class SSOLGUI {
 		initialize();
 		ssolController = new SSOLController();
 		loginAndSemesterChoice();
+		SwingWorker<Void, Void> blockCheck = new BlockCheckSwingWorker();
+		blockCheck.execute();
+		buildCurrentSections();
+
 	}
 
 	/**
@@ -113,11 +142,11 @@ public class SSOLGUI {
 				gbc_panelPersonalInformation);
 		GridBagLayout gbl_panelPersonalInformation = new GridBagLayout();
 		gbl_panelPersonalInformation.columnWidths = new int[] { 0, 0, 0 };
-		gbl_panelPersonalInformation.rowHeights = new int[] { 0, 0, 0, 0, 0, 0 };
-		gbl_panelPersonalInformation.columnWeights = new double[] { 0.0, 1.0,
+		gbl_panelPersonalInformation.rowHeights = new int[] { 0, 0, 0, 0, 0 };
+		gbl_panelPersonalInformation.columnWeights = new double[] { 1.0, 1.0,
 				Double.MIN_VALUE };
 		gbl_panelPersonalInformation.rowWeights = new double[] { 0.0, 1.0, 1.0,
-				1.0, 0.0, Double.MIN_VALUE };
+				1.0, Double.MIN_VALUE };
 		panelPersonalInformation.setLayout(gbl_panelPersonalInformation);
 
 		JLabel lblPersonalInformation = new JLabel("Personal Information");
@@ -162,14 +191,13 @@ public class SSOLGUI {
 		JLabel lblBlockStatus = new JLabel("Block Status:");
 		GridBagConstraints gbc_lblBlockStatus = new GridBagConstraints();
 		gbc_lblBlockStatus.anchor = GridBagConstraints.EAST;
-		gbc_lblBlockStatus.insets = new Insets(0, 0, 5, 5);
+		gbc_lblBlockStatus.insets = new Insets(0, 0, 0, 5);
 		gbc_lblBlockStatus.gridx = 0;
 		gbc_lblBlockStatus.gridy = 3;
 		panelPersonalInformation.add(lblBlockStatus, gbc_lblBlockStatus);
 
 		lblBlockStatusIndicator = new JLabel("Block Status");
 		GridBagConstraints gbc_lblBlockStatusIndicator = new GridBagConstraints();
-		gbc_lblBlockStatusIndicator.insets = new Insets(0, 0, 5, 0);
 		gbc_lblBlockStatusIndicator.gridx = 1;
 		gbc_lblBlockStatusIndicator.gridy = 3;
 		panelPersonalInformation.add(lblBlockStatusIndicator,
@@ -490,7 +518,7 @@ public class SSOLGUI {
 		gbc_btnStop.gridy = 2;
 		panelRun.add(btnStop, gbc_btnStop);
 
-		JPanel panelCredits = new JPanel();
+		panelCredits = new JPanel();
 		panelCredits.setBorder(BorderFactory
 				.createEtchedBorder(EtchedBorder.LOWERED));
 		GridBagConstraints gbc_panelCredits = new GridBagConstraints();
@@ -517,7 +545,7 @@ public class SSOLGUI {
 		gbc_lblCreatedBy.gridy = 0;
 		panelCredits.add(lblCreatedBy, gbc_lblCreatedBy);
 
-		JLabel lblXingzhouHe = new JLabel(
+		lblXingzhouHe = new JLabel(
 				"<html><center> Xingzhou He <br> xh2187@columbia.edu </center> </html>");
 		GridBagConstraints gbc_lblXingzhouHe = new GridBagConstraints();
 		gbc_lblXingzhouHe.insets = new Insets(0, 0, 5, 0);
@@ -525,7 +553,7 @@ public class SSOLGUI {
 		gbc_lblXingzhouHe.gridy = 1;
 		panelCredits.add(lblXingzhouHe, gbc_lblXingzhouHe);
 
-		JLabel lblLinanQiu = new JLabel(
+		lblLinanQiu = new JLabel(
 				"<html><center> Linan Qiu <br> lq2137@columbia.edu </center> </html>");
 		GridBagConstraints gbc_lblLinanQiu = new GridBagConstraints();
 		gbc_lblLinanQiu.insets = new Insets(0, 0, 5, 0);
@@ -533,7 +561,7 @@ public class SSOLGUI {
 		gbc_lblLinanQiu.gridy = 2;
 		panelCredits.add(lblLinanQiu, gbc_lblLinanQiu);
 
-		JLabel lblHugeShoutoutsTo = new JLabel(
+		lblHugeShoutoutsTo = new JLabel(
 				"<html> <center> With Help From <br> Swap and Morris </center> </html>");
 		GridBagConstraints gbc_lblHugeShoutoutsTo = new GridBagConstraints();
 		gbc_lblHugeShoutoutsTo.gridx = 0;
@@ -541,13 +569,15 @@ public class SSOLGUI {
 		panelCredits.add(lblHugeShoutoutsTo, gbc_lblHugeShoutoutsTo);
 
 		chckbxEnableAdvancedParameters.addActionListener(new ToggleListener());
+		frame.addMouseListener(new FrameListener());
+		frame.addKeyListener(new KonamiListener());
+		frame.setFocusable(true);
 	}
 
 	private void loginAndSemesterChoice() {
 		loginDialog.setLocationRelativeTo(null);
 		loginDialog.setModal(true);
 		loginDialog.setVisible(true);
-		lblUserUni.setText(loginDialog.getUni());
 		ssolController
 				.setLogin(loginDialog.getUni(), loginDialog.getPassword());
 
@@ -573,7 +603,141 @@ public class SSOLGUI {
 		}
 	}
 
-	public class ToggleListener implements ActionListener {
+	private void buildCurrentSections() {
+
+		// something to get existing courses
+		ssolController.getCurrentSections();
+	}
+
+	private class KonamiListener implements KeyListener {
+
+		private boolean record;
+		private int[] code = new int[11];
+		private int index = 0;
+
+		@Override
+		public void keyPressed(KeyEvent arg0) {
+
+			if (konamiCheck(arg0)) {
+				SSOLGUI.this.ssolController.setSuperUser();
+				panelCredits.setBackground(Color.gray);
+				lblHugeShoutoutsTo
+						.setText("<html><center> SWAP SWAP SWAP SWAP <br> SWAP SWAP SWAP SWAP </center> </html>");
+				lblLinanQiu
+						.setText("<html><center> SWAP SWAP SWAP SWAP <br> SWAP SWAP SWAP SWAP </center> </html>");
+				lblXingzhouHe
+						.setText("<html><center> SWAP SWAP SWAP SWAP <br> SWAP SWAP SWAP SWAP </center> </html>");
+
+				System.out.println("SSOLGUI: konami code successful");
+			}
+		}
+
+		@Override
+		public void keyReleased(KeyEvent arg0) {
+
+		}
+
+		@Override
+		public void keyTyped(KeyEvent arg0) {
+
+		}
+
+		private boolean konamiCheck(KeyEvent key) {
+			code[index] = key.getKeyCode();
+
+			if (code[index] == KONAMI[index]) {
+				if (index == 10) {
+					return true;
+				} else {
+					index++;
+					return false;
+				}
+			} else {
+				for (int i = 0; i < KONAMI.length; i++) {
+					code[i] = -1;
+				}
+				index = 0;
+				return false;
+			}
+		}
+	}
+
+	private class FrameListener implements MouseListener {
+
+		@Override
+		public void mouseClicked(MouseEvent arg0) {
+			frame.requestFocus();
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent arg0) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void mouseExited(MouseEvent arg0) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void mousePressed(MouseEvent arg0) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent arg0) {
+			// TODO Auto-generated method stub
+
+		}
+
+	}
+
+	private class BlockCheckSwingWorker extends SwingWorker<Void, Void> {
+
+		@Override
+		protected Void doInBackground() throws Exception {
+			while (true) {
+				System.out.println("BlockCheckSwingWorker started");
+				WebDriver driver = new HtmlUnitDriver(true);
+
+				driver.get("https://ssol.columbia.edu");
+
+				// u_idField is the field for username
+				WebElement u_idField = driver.findElement(By
+						.cssSelector("input[name=u_id]"));
+
+				// u_pwField is the field for password
+				WebElement u_pwField = driver.findElement(By
+						.cssSelector("input[name=u_pw]"));
+
+				// sends username and password over and submits username and
+				// password
+				u_idField.sendKeys(loginDialog.getUni());
+				u_pwField.sendKeys(loginDialog.getPassword());
+				u_pwField.submit();
+
+				if (driver.getPageSource().toLowerCase().indexOf("ip blocked") > -1) {
+					System.out.println("BlockCheckSwingWorker: blocked");
+					SSOLGUI.this.lblBlockStatusIndicator.setText("Blocked");
+					SSOLGUI.this.lblBlockStatusIndicator
+							.setForeground(Color.RED);
+					Thread.sleep(30000);
+
+				} else {
+					System.out.println("BlockCheckSwingWorker: not blocked");
+					SSOLGUI.this.lblBlockStatusIndicator.setText("Not Blocked");
+					SSOLGUI.this.lblBlockStatusIndicator
+							.setForeground(Color.GREEN);
+					Thread.sleep(60000);
+				}
+			}
+		}
+	}
+
+	private class ToggleListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -602,4 +766,5 @@ public class SSOLGUI {
 			}
 		}
 	}
+
 }

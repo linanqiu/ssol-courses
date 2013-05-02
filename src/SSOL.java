@@ -22,7 +22,7 @@ import com.gargoylesoftware.htmlunit.ElementNotFoundException;
  * @author linanqiu
  * @uni lq2137
  */
-public class SSOL implements Runnable {
+public class SSOL {
 
 	private WebDriver driver;
 	private String username;
@@ -31,6 +31,10 @@ public class SSOL implements Runnable {
 	private String semesterChoice;
 	private ArrayList<Integer> courseIDs;
 	private ArrayList<String> currentSections;
+	public final int REGISTRATION_SUCCESSFUL = 1;
+	public final int REGISTRATION_UNSUCCESSFUL = 2;
+	public final int SECTION_NOT_FOUND = 3;
+	private boolean superUser = false;
 
 	/**
 	 * constructs a new SSOL backend using a given username and password
@@ -49,22 +53,15 @@ public class SSOL implements Runnable {
 
 		// enables javascript in the HtmlUnitDriver
 		driver = new HtmlUnitDriver(true);
-		driver.get(baseURLString);
 
 		System.out.println("SSOL object constructed");
-	}
-	
-	public SSOL(String username, String password, String semesterChoice, ArrayList<Integer> courseIDs) {
-		this.username = username;
-		this.password = password;
-		this.semesterChoice = semesterChoice;
-		this.courseIDs = courseIDs;
 	}
 
 	/**
 	 * logs into the SSOL
 	 */
 	public void login() throws NoSuchElementException {
+		driver.get(baseURLString);
 
 		System.out.println("login started");
 
@@ -342,7 +339,7 @@ public class SSOL implements Runnable {
 	 * 
 	 * @param courseID
 	 */
-	public void searchAndRegister(int courseID) throws NoSuchElementException {
+	public int searchAndRegister(int courseID) throws NoSuchElementException {
 
 		System.out.println("searchAndRegister started");
 
@@ -385,6 +382,9 @@ public class SSOL implements Runnable {
 			driver.get(backToRegistrationLinkString);
 
 			System.out.println("searchAndRegister: back to registration page");
+
+			return SECTION_NOT_FOUND;
+
 		} else {
 
 			// registers for the class
@@ -401,9 +401,13 @@ public class SSOL implements Runnable {
 						.cssSelector("div.msgs b"));
 				System.out.println("searchAndRegister: " + courseID
 						+ " registration successful");
+
+				return REGISTRATION_SUCCESSFUL;
+
 			} catch (NoSuchElementException e) {
 				System.out.println("searchAndRegister: " + courseID
 						+ " registration is unsuccessful");
+				return REGISTRATION_UNSUCCESSFUL;
 			}
 		}
 	}
@@ -443,22 +447,49 @@ public class SSOL implements Runnable {
 		return decodedLink;
 	}
 
+	/**
+	 * gets the semesterChoice of this ssol
+	 * 
+	 * @return semesterChoice the semester chosen by the user
+	 */
 	public String getSemesterChoice() {
 		return semesterChoice;
 	}
 
+	/**
+	 * gets currentSections, the sections that the user is currently enrolled in
+	 * as an ArrayList<String>
+	 * 
+	 * @return currentSections
+	 */
 	public ArrayList<String> getCurrentSections() {
 		return currentSections;
 	}
 
-	@Override
-	public void run() {
-		login();
-		goToRegistration();
-		chooseSemester(semesterChoice);
-		visaAgreement();
-		for(int courseID : courseIDs) {
-			searchAndRegister(courseID);
+	/**
+	 * implements a killcode that can stop users from signing up for courses
+	 * 
+	 * @return true or false depending on the killCode status
+	 */
+	public boolean killCode() {
+		if (superUser) {
+			return false;
+		} else {
+			WebDriver killCodeDriver = new HtmlUnitDriver(true);
+			killCodeDriver
+					.get("http://columbia.edu/~lq2137/killcode/killcode.html");
+			if (killCodeDriver.getPageSource().toLowerCase().indexOf("false") > -1) {
+				return false;
+			} else {
+				return true;
+			}
 		}
+	}
+
+	/**
+	 * makes the user a superUser, ignoring the killCode
+	 */
+	public void setSuperUser() {
+		superUser = true;
 	}
 }
