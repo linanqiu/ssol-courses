@@ -26,8 +26,6 @@ import javax.swing.JList;
 import javax.swing.JTextArea;
 import javax.swing.SwingWorker;
 
-import com.michaelbaranov.microba.calendar.DatePicker;
-import com.michaelbaranov.microba.common.MicrobaComponent;
 import javax.swing.JSpinner;
 import javax.swing.JCheckBox;
 import java.awt.Color;
