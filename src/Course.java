@@ -1,17 +1,103 @@
+import java.util.ArrayList;
+import java.util.Date;
 
-public class Course {
+/**
+ * Object to implement a course
+ * @author Xingzhou  xh2187
+ */
 
+@SuppressWarnings("unused")
+public class Course implements CourseText{
+
+	// These fields are capitalized for GSON processor
+	// From data.adicu.com
 	private String DepartmentCode;
+	private String Course;
 	private Section[] Sections;
 	private int NumFixedUnits;
 	private String CourseTitle;
-	private String CourseSubtitle;
 	private String Description;
 	
-	
-	public void limitTerm(String term) {
-		// TODO Auto-generated method stub
-		
+	/**
+	 * Delete sections not within the term. Used for post-processing
+	 */
+	public void postProcess(String term) {
+		ArrayList<Section> termSections = new ArrayList<Section>();
+		for (Section i:Sections)
+			if (i.getSemester() == term)
+			{
+				i.setCourse(this);
+				termSections.add(i);
+			}
+		Sections = termSections.toArray(new Section[termSections.size()]);
 	}
 
+	@Override
+	public String getCourseNumber() {
+		return Course;
+	}
+
+	@Override
+	public String getTitle() {
+		return CourseTitle;
+	}
+
+	@Override
+	public String getDescription() {
+		return Description;
+	}
+
+	@Override
+	public Integer getCredits() {
+		return NumFixedUnits;
+	}
+
+	// The following are not provided by Course
+	@Override
+	public String getSemester() {
+		return null;
+	}
+
+	@Override
+	public String getInstructor() {
+		return null;
+	}
+
+	@Override
+	public Integer getCallNumber() {
+		return null;
+	}
+
+	@Override
+	public Date getStartTime() {
+		return null;
+	}
+
+	@Override
+	public Date getEndTime() {
+		return null;
+	}
+
+	@Override
+	public String getLocation() {
+		return null;
+	}
+
+	@Override
+	public String getMeetDay() {		
+		return null;
+	}
+
+	@Override
+	public Integer getMaxSize() {
+		return null;
+	}
+
+	@Override
+	public Integer getNumEnroll() {
+		return null;
+	}
+	
+	
+	
 }
