@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 /**
@@ -54,7 +55,7 @@ public class CourseFetcher {
 	 * @return A course object if found, or null
 	 * @throws IOException
 	 */
-	public static Course getCourseByNumber(String dept, int courseNumber, String term) throws IOException {
+	public static Course getCourseByNumber(String dept, String courseNumber, String term) throws IOException {
 		
 		String urlString = courseURL + "&limit=1" + "&course=" + courseNumber;
 		if (dept!=null)
@@ -75,12 +76,31 @@ public class CourseFetcher {
 		
 	}
 	
+	/**
+	 * Get a section by its call number
+	 * @param callNumber callNumber of the section queried.
+	 * @return A Section object, or null if the call number does not exist
+	 * @throws IOException
+	 */
 	public static Section getByCallNumber(int callNumber) throws IOException {
-		return null;
+		String urlString = sectionURL + "&limit=1&call_number=" + callNumber;
+		
+		String httpResult = httpGetRequest(urlString);
+		
+		Gson gson = new Gson();
+		JsonObject httpJson = gson.fromJson(httpResult, JsonObject.class);
+		if (httpJson.getAsJsonPrimitive("status_code").getAsInt()!=200)
+			throw new IOException(); // Error from remote server
+		
+		JsonArray jsonSections = httpJson.getAsJsonArray("data");
+		if (jsonSections.size() == 0) // Not Found
+			return null;
+		else
+			return gson.fromJson(jsonSections.get(0), Section.class);
 	}
 	
-	public static Course[] getByKeyWord(String dept, String key, String term) throws IOException {
-		String urlString = courseURL + "&limit=1" + "&title=" + key;
+	public static Course[] getCoursesByKeyword(String dept, String key, String term) throws IOException {
+		String urlString = courseURL + "&limit=50" + "&title=" + key;
 		if (dept!=null)
 			urlString += "&department=" + dept;
 		
