@@ -56,6 +56,19 @@ public class SSOL {
 
 		System.out.println("SSOL object constructed");
 	}
+	
+	public SSOL(String username, String password, String semesterChoice) {
+		
+		System.out.println("SSOL object called using thread constructor");
+		
+		this.username = username;
+		this.password = password;
+		this.semesterChoice = semesterChoice;
+		
+		driver = new HtmlUnitDriver(true);
+		
+		System.out.println("SSOL object constructed using thread constructor");
+	}
 
 	/**
 	 * logs into the SSOL
@@ -95,7 +108,7 @@ public class SSOL {
 
 		// gets the schedule link and takes the URL
 		WebElement scheduleLink = driver.findElement(By
-				.linkText("Student Schedule"));
+				.linkText("Schedule"));
 
 		String scheduleLinkString = decodeSSOLLink(scheduleLink.toString());
 
@@ -175,13 +188,13 @@ public class SSOL {
 		// declares the ArrayList which will contain the semester options
 		ArrayList<String> semesterOptions = new ArrayList<String>();
 
-		System.out.println("semesterChoice started");
+		System.out.println("semesterOptions started");
 
 		// each semester occurs in a fieldset. hence we find the fieldset.
 		List<WebElement> semesterOptionFields = driver.findElements(By
 				.cssSelector("fieldset"));
 
-		System.out.println("semesterChoice: " + semesterOptionFields.size()
+		System.out.println("semesterOptions: " + semesterOptionFields.size()
 				+ " semesters available");
 
 		if (semesterOptionFields.size() == 1) {
@@ -198,7 +211,7 @@ public class SSOL {
 
 			semesterOptions.add(semesterOption);
 
-			System.out.println("semesterChoice: sessionId " + semesterOption
+			System.out.println("semesterOptions: sessionId " + semesterOption
 					+ " is available");
 
 		} else {
@@ -216,14 +229,14 @@ public class SSOL {
 			}
 
 			for (String semesterOption : semesterOptions) {
-				System.out.println("semesterChoice: sessionId "
+				System.out.println("semesterOptions: sessionId "
 						+ semesterOption + " is available");
 			}
 
 		}
 
 		// returns the answer
-		System.out.println("semesterChoice finished");
+		System.out.println("semesterOptions finished");
 
 		return semesterOptions;
 	}
@@ -397,7 +410,7 @@ public class SSOL {
 
 			// checks if registration is successful
 			try {
-				WebElement sucessElement = driver.findElement(By
+				WebElement successElement = driver.findElement(By
 						.cssSelector("div.msgs b"));
 				System.out.println("searchAndRegister: " + courseID
 						+ " registration successful");
