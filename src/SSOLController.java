@@ -59,15 +59,13 @@ public class SSOLController {
 	}
 
 	/**
-	 * gets current courses, converts the ArrayList<String> into
-	 * ArrayList<Section> using SectionFetcher
+	 * gets current courses
 	 */
-	public ArrayList<Section> getCurrentSections() {
+	public ArrayList<String> getCurrentSections() {
 
-		// TODO: waiting for SectionFetcher implementation
-		ArrayList<String> currentSectionsString = ssol.getCurrentSections();
+		ssol.currentSections();
 
-		return null;
+		return ssol.getCurrentSections();
 	}
 
 	/**
@@ -85,8 +83,11 @@ public class SSOLController {
 
 		if (semesterOptions.size() == 1) {
 			this.semesterChoice = semesterOptions.get(0);
+			ssol.chooseSemester(semesterOptions.get(0));
 		} else {
 			this.semesterChoice = semesterChoice;
+			ssol.chooseSemester(semesterChoice);
+
 		}
 	}
 
@@ -136,6 +137,7 @@ public class SSOLController {
 	 */
 	public ArrayList<Integer> runSSOL(ArrayList<Integer> courseIDs) {
 		ArrayList<Integer> results = new ArrayList<Integer>();
+		ssol = new SSOL(uni, password, semesterChoice);
 		ssol.login();
 		ssol.goToRegistration();
 		ssol.chooseSemester(semesterChoice);

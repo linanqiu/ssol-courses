@@ -14,6 +14,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -78,6 +79,7 @@ public class SSOLGUI {
 	private JLabel lblLinanQiu;
 	private JLabel lblXingzhouHe;
 	private JPanel panelCredits;
+	private JList listExistingSections;
 
 	/**
 	 * Launch the application.
@@ -105,7 +107,6 @@ public class SSOLGUI {
 		SwingWorker<Void, Void> blockCheck = new BlockCheckSwingWorker();
 		blockCheck.execute();
 		buildCurrentSections();
-
 	}
 
 	/**
@@ -235,7 +236,7 @@ public class SSOLGUI {
 		panelExistingSections.add(scrollPaneExistingSections,
 				gbc_scrollPaneExistingSections);
 
-		JList listExistingSections = new JList();
+		listExistingSections = new JList();
 		scrollPaneExistingSections.setViewportView(listExistingSections);
 
 		JPanel panelAdvancedParameters = new JPanel();
@@ -576,6 +577,7 @@ public class SSOLGUI {
 		loginDialog.setLocationRelativeTo(null);
 		loginDialog.setModal(true);
 		loginDialog.setVisible(true);
+		lblUserUni.setText(loginDialog.getUni());
 		ssolController
 				.setLogin(loginDialog.getUni(), loginDialog.getPassword());
 
@@ -592,19 +594,76 @@ public class SSOLGUI {
 			semesterChoiceDialog.setVisible(true);
 			ssolController
 					.setSemester(semesterChoiceDialog.getSemesterChoice());
-			lblSemesterChoice.setText(semesterChoiceDialog.getSemesterChoice());
+			lblSemesterChoice.setText(semesterText(semesterChoiceDialog
+					.getSemesterChoice()));
 			System.out.println("loginAndSemesterChoice: "
 					+ semesterChoiceDialog.getSemesterChoice() + " chosen");
 		} else {
 			ssolController.setSemester(null);
-			lblSemesterChoice.setText(ssolController.getSemesterChoice());
+			lblSemesterChoice.setText(semesterText(ssolController
+					.getSemesterChoice()));
 		}
 	}
 
-	private void buildCurrentSections() {
+	private String semesterText(String semester) {
+		String textSemester = "";
+		if (semester.substring(4, 5).equals("2")) {
+			textSemester = semester + " - " + semester.substring(0, 4)
+					+ " Summer";
+		} else if (semester.substring(4, 5).equals("3")) {
+			textSemester = semester + " - " + semester.substring(0, 4)
+					+ " Fall";
+		} else if (semester.substring(4, 5).equals("1")) {
+			textSemester = semester + " - " + semester.substring(0, 4)
+					+ " Spring";
+		}
+		return textSemester;
+	}
 
-		// something to get existing courses
-		ssolController.getCurrentSections();
+	private void buildCurrentSections() {
+		System.out.println("buildCurrentSections started");
+
+		ArrayList<String> currentSections = ssolController.getCurrentSections();
+
+		DefaultListModel currentSectionsModel = new DefaultListModel();
+
+		for (String currentSection : currentSections) {
+			String element = "<html>";
+			String[] lines = currentSection.split("\n");
+			for (int i = 0; i < lines.length; i++) {
+				element = element + lines[i];
+				if (i != lines.length - 1) {
+					element = element + "<br>";
+				}
+			}
+			element = element + "</html>";
+			currentSectionsModel.addElement(element);
+		}
+
+		listExistingSections.setModel(currentSectionsModel);
+	}
+
+	private class StartStopListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			if (arg0.getSource() == btnStart) {
+
+			} else if (arg0.getSource() == btnStop) {
+
+			}  
+
+		}
+	}
+	
+	private class RunSSOLSwingWorker extends SwingWorker<Void, Void> {
+
+		@Override
+		protected Void doInBackground() throws Exception {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
 	}
 
 	private class KonamiListener implements KeyListener {
