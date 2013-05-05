@@ -642,6 +642,11 @@ public class SSOLGUI {
 
 		listExistingSections.setModel(currentSectionsModel);
 	}
+	
+	public ArrayList<Integer> getCourseIDs() {
+		
+		return null;
+	}
 
 	private class StartStopListener implements ActionListener {
 
