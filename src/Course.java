@@ -9,6 +9,10 @@ import java.util.Date;
 @SuppressWarnings("unused")
 public class Course implements CourseText{
 
+	public Course() {
+		
+	}
+	
 	// These fields are capitalized for GSON processor
 	// From data.adicu.com
 	private String DepartmentCode;
