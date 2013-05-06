@@ -27,13 +27,13 @@ public class SSOL {
 	private WebDriver driver;
 	private String username;
 	private String password;
-	private String baseURLString;
+	public static final String baseURLString = "https://ssol.columbia.edu/";
 	private String semesterChoice;
 	private ArrayList<Integer> courseIDs;
 	private ArrayList<String> currentSections;
-	public final int REGISTRATION_SUCCESSFUL = 1;
-	public final int REGISTRATION_UNSUCCESSFUL = 2;
-	public final int SECTION_NOT_FOUND = 3;
+	public static final int REGISTRATION_SUCCESSFUL = 1;
+	public static final int REGISTRATION_UNSUCCESSFUL = 2;
+	public static final int SECTION_NOT_FOUND = 3;
 	private boolean superUser = false;
 
 	/**
@@ -45,7 +45,6 @@ public class SSOL {
 	public SSOL(String username, String password) {
 
 		System.out.println("SSOL object called");
-		baseURLString = "https://ssol.columbia.edu/";
 		this.username = username;
 		this.password = password;
 
@@ -56,17 +55,16 @@ public class SSOL {
 
 		System.out.println("SSOL object constructed");
 	}
-	
+
 	public SSOL(String username, String password, String semesterChoice) {
-		
+
 		System.out.println("SSOL object called using thread constructor");
-		
 		this.username = username;
 		this.password = password;
 		this.semesterChoice = semesterChoice;
-		
+
 		driver = new HtmlUnitDriver(true);
-		
+
 		System.out.println("SSOL object constructed using thread constructor");
 	}
 
@@ -75,6 +73,8 @@ public class SSOL {
 	 */
 	public void login() throws NoSuchElementException {
 		driver.get(baseURLString);
+
+		System.out.println(driver.getCurrentUrl());
 
 		System.out.println("login started");
 
@@ -107,8 +107,7 @@ public class SSOL {
 		System.out.println("currentCourses started");
 
 		// gets the schedule link and takes the URL
-		WebElement scheduleLink = driver.findElement(By
-				.linkText("Schedule"));
+		WebElement scheduleLink = driver.findElement(By.linkText("Schedule"));
 
 		String scheduleLinkString = decodeSSOLLink(scheduleLink.toString());
 

@@ -13,6 +13,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
@@ -53,21 +54,11 @@ public class SSOLGUI {
 	private SSOLController ssolController;
 	private LoginDialog loginDialog;
 	private SemesterChoiceDialog semesterChoiceDialog;
-	private JTextField txtNumberOfTries;
-	private JTextField txtWaitTime;
-	private JTextField textFieldHour;
-	private JTextField txtFieldMin;
 	private JButton btnStart;
 	private JButton buttonAddSection;
 	private JButton btnStop;
 	private JButton btnSearch;
 	private JButton buttonRemoveSection;
-	private JCheckBox chckbxEnableAdvancedParameters;
-	private JLabel labelColon;
-	private JLabel lblTries;
-	private JLabel lblStartTime;
-	private JLabel lblAdvancedParameters;
-	private JLabel lblWaitTime;
 	private JLabel lblUserUni;
 	private JLabel lblSemesterChoice;
 	private JLabel lblBlockStatusIndicator;
@@ -80,6 +71,8 @@ public class SSOLGUI {
 	private JLabel lblXingzhouHe;
 	private JPanel panelCredits;
 	private JList listExistingSections;
+	private DefaultListModel sectionsToAddModel;
+	private ArrayList<Section> sectionsToAddList;
 
 	/**
 	 * Launch the application.
@@ -101,6 +94,7 @@ public class SSOLGUI {
 	 * Create the application.
 	 */
 	public SSOLGUI() {
+		sectionsToAddModel = new DefaultListModel();
 		initialize();
 		ssolController = new SSOLController();
 		loginAndSemesterChoice();
@@ -122,11 +116,10 @@ public class SSOLGUI {
 		frame.setLocationRelativeTo(null);
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 0, 0, 0, 0 };
-		gridBagLayout.rowHeights = new int[] { 0, 0, 0, 0 };
+		gridBagLayout.rowHeights = new int[] { 189, 0, 0 };
 		gridBagLayout.columnWeights = new double[] { 1.0, 1.0, 0.0,
 				Double.MIN_VALUE };
-		gridBagLayout.rowWeights = new double[] { 0.0, 1.0, 1.0,
-				Double.MIN_VALUE };
+		gridBagLayout.rowWeights = new double[] { 0.0, 1.0, Double.MIN_VALUE };
 		frame.getContentPane().setLayout(gridBagLayout);
 
 		JPanel panelPersonalInformation = new JPanel();
@@ -239,130 +232,60 @@ public class SSOLGUI {
 		listExistingSections = new JList();
 		scrollPaneExistingSections.setViewportView(listExistingSections);
 
-		JPanel panelAdvancedParameters = new JPanel();
-		panelAdvancedParameters.setBorder(BorderFactory
+		panelCredits = new JPanel();
+		panelCredits.setBorder(BorderFactory
 				.createEtchedBorder(EtchedBorder.LOWERED));
-		GridBagConstraints gbc_panelAdvancedParameters = new GridBagConstraints();
-		gbc_panelAdvancedParameters.insets = new Insets(10, 10, 10, 10);
-		gbc_panelAdvancedParameters.fill = GridBagConstraints.BOTH;
-		gbc_panelAdvancedParameters.gridx = 2;
-		gbc_panelAdvancedParameters.gridy = 0;
-		frame.getContentPane().add(panelAdvancedParameters,
-				gbc_panelAdvancedParameters);
-		GridBagLayout gbl_panelAdvancedParameters = new GridBagLayout();
-		gbl_panelAdvancedParameters.columnWidths = new int[] { 0, 0, 0, 0, 0 };
-		gbl_panelAdvancedParameters.rowHeights = new int[] { 0, 0, 0, 0, 0, 0 };
-		gbl_panelAdvancedParameters.columnWeights = new double[] { 0.0, 1.0,
-				0.0, 1.0, Double.MIN_VALUE };
-		gbl_panelAdvancedParameters.rowWeights = new double[] { 0.0, 0.0, 0.0,
-				0.0, 0.0, Double.MIN_VALUE };
-		panelAdvancedParameters.setLayout(gbl_panelAdvancedParameters);
+		GridBagConstraints gbc_panelCredits = new GridBagConstraints();
+		gbc_panelCredits.insets = new Insets(10, 10, 10, 10);
+		gbc_panelCredits.fill = GridBagConstraints.BOTH;
+		gbc_panelCredits.gridx = 2;
+		gbc_panelCredits.gridy = 0;
+		frame.getContentPane().add(panelCredits, gbc_panelCredits);
+		GridBagLayout gbl_panelCredits = new GridBagLayout();
+		gbl_panelCredits.columnWidths = new int[] { 120, 0 };
+		gbl_panelCredits.rowHeights = new int[] { 16, 0, 0, 0, 0 };
+		gbl_panelCredits.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
+		gbl_panelCredits.rowWeights = new double[] { 0.0, 1.0, 1.0, 1.0,
+				Double.MIN_VALUE };
+		panelCredits.setLayout(gbl_panelCredits);
 
-		lblAdvancedParameters = new JLabel("Advanced Parameters");
-		GridBagConstraints gbc_lblAdvancedParameters = new GridBagConstraints();
-		gbc_lblAdvancedParameters.gridwidth = 4;
-		gbc_lblAdvancedParameters.insets = new Insets(0, 0, 5, 0);
-		gbc_lblAdvancedParameters.gridx = 0;
-		gbc_lblAdvancedParameters.gridy = 0;
-		panelAdvancedParameters.add(lblAdvancedParameters,
-				gbc_lblAdvancedParameters);
+		JLabel lblCreatedBy = new JLabel("Created By:");
+		lblCreatedBy.setHorizontalAlignment(SwingConstants.CENTER);
+		GridBagConstraints gbc_lblCreatedBy = new GridBagConstraints();
+		gbc_lblCreatedBy.anchor = GridBagConstraints.NORTH;
+		gbc_lblCreatedBy.fill = GridBagConstraints.BOTH;
+		gbc_lblCreatedBy.insets = new Insets(0, 0, 5, 0);
+		gbc_lblCreatedBy.gridx = 0;
+		gbc_lblCreatedBy.gridy = 0;
+		panelCredits.add(lblCreatedBy, gbc_lblCreatedBy);
 
-		chckbxEnableAdvancedParameters = new JCheckBox(
-				"Enable Advanced Parameters");
-		GridBagConstraints gbc_chckbxEnableAdvancedParameters = new GridBagConstraints();
-		gbc_chckbxEnableAdvancedParameters.gridwidth = 4;
-		gbc_chckbxEnableAdvancedParameters.insets = new Insets(0, 0, 5, 5);
-		gbc_chckbxEnableAdvancedParameters.gridx = 0;
-		gbc_chckbxEnableAdvancedParameters.gridy = 1;
-		panelAdvancedParameters.add(chckbxEnableAdvancedParameters,
-				gbc_chckbxEnableAdvancedParameters);
+		lblXingzhouHe = new JLabel(
+				"<html><center> Xingzhou He <br> xh2187@columbia.edu </center> </html>");
+		GridBagConstraints gbc_lblXingzhouHe = new GridBagConstraints();
+		gbc_lblXingzhouHe.insets = new Insets(0, 0, 5, 0);
+		gbc_lblXingzhouHe.gridx = 0;
+		gbc_lblXingzhouHe.gridy = 1;
+		panelCredits.add(lblXingzhouHe, gbc_lblXingzhouHe);
 
-		lblTries = new JLabel("Tries:");
-		lblTries.setEnabled(false);
-		GridBagConstraints gbc_lblTries = new GridBagConstraints();
-		gbc_lblTries.anchor = GridBagConstraints.EAST;
-		gbc_lblTries.insets = new Insets(0, 0, 5, 5);
-		gbc_lblTries.gridx = 0;
-		gbc_lblTries.gridy = 2;
-		panelAdvancedParameters.add(lblTries, gbc_lblTries);
+		lblLinanQiu = new JLabel(
+				"<html><center> Linan Qiu <br> lq2137@columbia.edu </center> </html>");
+		GridBagConstraints gbc_lblLinanQiu = new GridBagConstraints();
+		gbc_lblLinanQiu.insets = new Insets(0, 0, 5, 0);
+		gbc_lblLinanQiu.gridx = 0;
+		gbc_lblLinanQiu.gridy = 2;
+		panelCredits.add(lblLinanQiu, gbc_lblLinanQiu);
 
-		txtNumberOfTries = new JTextField();
-		txtNumberOfTries.setEnabled(false);
-		txtNumberOfTries.setText("0");
-		GridBagConstraints gbc_txtNumberOfTries = new GridBagConstraints();
-		gbc_txtNumberOfTries.gridwidth = 3;
-		gbc_txtNumberOfTries.insets = new Insets(0, 0, 5, 0);
-		gbc_txtNumberOfTries.fill = GridBagConstraints.HORIZONTAL;
-		gbc_txtNumberOfTries.gridx = 1;
-		gbc_txtNumberOfTries.gridy = 2;
-		panelAdvancedParameters.add(txtNumberOfTries, gbc_txtNumberOfTries);
-		txtNumberOfTries.setColumns(10);
-
-		lblWaitTime = new JLabel("Wait Time:");
-		lblWaitTime.setEnabled(false);
-		GridBagConstraints gbc_lblWaitTime = new GridBagConstraints();
-		gbc_lblWaitTime.anchor = GridBagConstraints.EAST;
-		gbc_lblWaitTime.insets = new Insets(0, 0, 5, 5);
-		gbc_lblWaitTime.gridx = 0;
-		gbc_lblWaitTime.gridy = 3;
-		panelAdvancedParameters.add(lblWaitTime, gbc_lblWaitTime);
-
-		txtWaitTime = new JTextField();
-		txtWaitTime.setEnabled(false);
-		txtWaitTime.setText("60000");
-		GridBagConstraints gbc_txtWaitTime = new GridBagConstraints();
-		gbc_txtWaitTime.insets = new Insets(0, 0, 5, 0);
-		gbc_txtWaitTime.gridwidth = 3;
-		gbc_txtWaitTime.fill = GridBagConstraints.HORIZONTAL;
-		gbc_txtWaitTime.gridx = 1;
-		gbc_txtWaitTime.gridy = 3;
-		panelAdvancedParameters.add(txtWaitTime, gbc_txtWaitTime);
-		txtWaitTime.setColumns(10);
-
-		lblStartTime = new JLabel("Start Time:");
-		lblStartTime.setEnabled(false);
-		GridBagConstraints gbc_lblStartTime = new GridBagConstraints();
-		gbc_lblStartTime.anchor = GridBagConstraints.EAST;
-		gbc_lblStartTime.insets = new Insets(0, 0, 0, 5);
-		gbc_lblStartTime.gridx = 0;
-		gbc_lblStartTime.gridy = 4;
-		panelAdvancedParameters.add(lblStartTime, gbc_lblStartTime);
-
-		textFieldHour = new JTextField();
-		textFieldHour.setEnabled(false);
-		textFieldHour.setText("HH");
-		GridBagConstraints gbc_textFieldHour = new GridBagConstraints();
-		gbc_textFieldHour.insets = new Insets(0, 0, 0, 5);
-		gbc_textFieldHour.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textFieldHour.gridx = 1;
-		gbc_textFieldHour.gridy = 4;
-		panelAdvancedParameters.add(textFieldHour, gbc_textFieldHour);
-		textFieldHour.setColumns(10);
-
-		labelColon = new JLabel(":");
-		labelColon.setEnabled(false);
-		GridBagConstraints gbc_labelColon = new GridBagConstraints();
-		gbc_labelColon.insets = new Insets(0, 0, 0, 5);
-		gbc_labelColon.anchor = GridBagConstraints.EAST;
-		gbc_labelColon.gridx = 2;
-		gbc_labelColon.gridy = 4;
-		panelAdvancedParameters.add(labelColon, gbc_labelColon);
-
-		txtFieldMin = new JTextField();
-		txtFieldMin.setEnabled(false);
-		txtFieldMin.setText("MM");
-		GridBagConstraints gbc_txtFieldMin = new GridBagConstraints();
-		gbc_txtFieldMin.fill = GridBagConstraints.HORIZONTAL;
-		gbc_txtFieldMin.gridx = 3;
-		gbc_txtFieldMin.gridy = 4;
-		panelAdvancedParameters.add(txtFieldMin, gbc_txtFieldMin);
-		txtFieldMin.setColumns(10);
+		lblHugeShoutoutsTo = new JLabel(
+				"<html> <center> With Help From <br> Swap and Morris </center> </html>");
+		GridBagConstraints gbc_lblHugeShoutoutsTo = new GridBagConstraints();
+		gbc_lblHugeShoutoutsTo.gridx = 0;
+		gbc_lblHugeShoutoutsTo.gridy = 3;
+		panelCredits.add(lblHugeShoutoutsTo, gbc_lblHugeShoutoutsTo);
 
 		JPanel panelSectionDirectory = new JPanel();
 		panelSectionDirectory.setBorder(BorderFactory
 				.createEtchedBorder(EtchedBorder.LOWERED));
 		GridBagConstraints gbc_panelSectionDirectory = new GridBagConstraints();
-		gbc_panelSectionDirectory.gridheight = 2;
 		gbc_panelSectionDirectory.insets = new Insets(10, 10, 10, 10);
 		gbc_panelSectionDirectory.fill = GridBagConstraints.BOTH;
 		gbc_panelSectionDirectory.gridx = 0;
@@ -445,7 +368,6 @@ public class SSOLGUI {
 		panelSectionsToAdd.setBorder(BorderFactory
 				.createEtchedBorder(EtchedBorder.LOWERED));
 		GridBagConstraints gbc_panelSectionsToAdd = new GridBagConstraints();
-		gbc_panelSectionsToAdd.gridheight = 2;
 		gbc_panelSectionsToAdd.insets = new Insets(10, 10, 10, 10);
 		gbc_panelSectionsToAdd.fill = GridBagConstraints.BOTH;
 		gbc_panelSectionsToAdd.gridx = 1;
@@ -476,6 +398,7 @@ public class SSOLGUI {
 				gbc_scrollPaneSectionsToAdd);
 
 		JList listSectionsToAdd = new JList();
+		listSectionsToAdd.setModel(sectionsToAddModel);
 		scrollPaneSectionsToAdd.setViewportView(listSectionsToAdd);
 
 		JPanel panelRun = new JPanel();
@@ -517,60 +440,13 @@ public class SSOLGUI {
 		gbc_btnStop.gridy = 2;
 		panelRun.add(btnStop, gbc_btnStop);
 
-		panelCredits = new JPanel();
-		panelCredits.setBorder(BorderFactory
-				.createEtchedBorder(EtchedBorder.LOWERED));
-		GridBagConstraints gbc_panelCredits = new GridBagConstraints();
-		gbc_panelCredits.insets = new Insets(10, 10, 10, 10);
-		gbc_panelCredits.fill = GridBagConstraints.BOTH;
-		gbc_panelCredits.gridx = 2;
-		gbc_panelCredits.gridy = 2;
-		frame.getContentPane().add(panelCredits, gbc_panelCredits);
-		GridBagLayout gbl_panelCredits = new GridBagLayout();
-		gbl_panelCredits.columnWidths = new int[] { 120, 0 };
-		gbl_panelCredits.rowHeights = new int[] { 16, 0, 0, 0, 0 };
-		gbl_panelCredits.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-		gbl_panelCredits.rowWeights = new double[] { 0.0, 1.0, 1.0, 1.0,
-				Double.MIN_VALUE };
-		panelCredits.setLayout(gbl_panelCredits);
-
-		JLabel lblCreatedBy = new JLabel("Created By:");
-		lblCreatedBy.setHorizontalAlignment(SwingConstants.CENTER);
-		GridBagConstraints gbc_lblCreatedBy = new GridBagConstraints();
-		gbc_lblCreatedBy.anchor = GridBagConstraints.NORTH;
-		gbc_lblCreatedBy.fill = GridBagConstraints.BOTH;
-		gbc_lblCreatedBy.insets = new Insets(0, 0, 5, 0);
-		gbc_lblCreatedBy.gridx = 0;
-		gbc_lblCreatedBy.gridy = 0;
-		panelCredits.add(lblCreatedBy, gbc_lblCreatedBy);
-
-		lblXingzhouHe = new JLabel(
-				"<html><center> Xingzhou He <br> xh2187@columbia.edu </center> </html>");
-		GridBagConstraints gbc_lblXingzhouHe = new GridBagConstraints();
-		gbc_lblXingzhouHe.insets = new Insets(0, 0, 5, 0);
-		gbc_lblXingzhouHe.gridx = 0;
-		gbc_lblXingzhouHe.gridy = 1;
-		panelCredits.add(lblXingzhouHe, gbc_lblXingzhouHe);
-
-		lblLinanQiu = new JLabel(
-				"<html><center> Linan Qiu <br> lq2137@columbia.edu </center> </html>");
-		GridBagConstraints gbc_lblLinanQiu = new GridBagConstraints();
-		gbc_lblLinanQiu.insets = new Insets(0, 0, 5, 0);
-		gbc_lblLinanQiu.gridx = 0;
-		gbc_lblLinanQiu.gridy = 2;
-		panelCredits.add(lblLinanQiu, gbc_lblLinanQiu);
-
-		lblHugeShoutoutsTo = new JLabel(
-				"<html> <center> With Help From <br> Swap and Morris </center> </html>");
-		GridBagConstraints gbc_lblHugeShoutoutsTo = new GridBagConstraints();
-		gbc_lblHugeShoutoutsTo.gridx = 0;
-		gbc_lblHugeShoutoutsTo.gridy = 3;
-		panelCredits.add(lblHugeShoutoutsTo, gbc_lblHugeShoutoutsTo);
-
-		chckbxEnableAdvancedParameters.addActionListener(new ToggleListener());
+		btnStop.setEnabled(false);
 		frame.addMouseListener(new FrameListener());
 		frame.addKeyListener(new KonamiListener());
 		frame.setFocusable(true);
+		StartStopListener startStopListener = new StartStopListener();
+		btnStart.addActionListener(startStopListener);
+		btnStop.addActionListener(startStopListener);
 	}
 
 	private void loginAndSemesterChoice() {
@@ -642,33 +518,78 @@ public class SSOLGUI {
 
 		listExistingSections.setModel(currentSectionsModel);
 	}
-	
+
 	public ArrayList<Integer> getCourseIDs() {
-		
-		return null;
+		System.out.println("getCourseIDs started");
+		// ArrayList<Integer> courseIDs = new ArrayList<Integer>();
+		// for (Section section : sectionsToAddList) {
+		// System.out.println("getCourseIDs: " + section.getCallNumber() +
+		// " added");
+		// courseIDs.add(section.getCallNumber());
+		// }
+		// System.out.println("getCourseIDs finished");
+		//
+		ArrayList<Integer> temp = new ArrayList<Integer>();
+		temp.add(52125);
+		temp.add(12345);
+		return temp;
 	}
 
 	private class StartStopListener implements ActionListener {
+		SwingWorker<Void, Void> ssolWorker;
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
+
 			if (arg0.getSource() == btnStart) {
+				System.out
+						.println("StartStopListener: calling new RunSSOLSwingWorker");
+				ssolWorker = new RunSSOLSwingWorker();
+				System.out.println("StartStopListener: executing ssolWorker");
+				ssolWorker.execute();
+				btnStart.setEnabled(false);
+				btnStop.setEnabled(true);
 
 			} else if (arg0.getSource() == btnStop) {
-
-			}  
+				System.out.println("StartStopListener: canceling ssolWorker");
+				ssolWorker.cancel(true);
+				btnStart.setEnabled(true);
+				btnStop.setEnabled(false);
+			}
 
 		}
 	}
-	
+
 	private class RunSSOLSwingWorker extends SwingWorker<Void, Void> {
 
 		@Override
 		protected Void doInBackground() throws Exception {
-			// TODO Auto-generated method stub
-			return null;
+			System.out.println("RunSSOLWorker started");
+			ArrayList<Integer> courseIDs = SSOLGUI.this.getCourseIDs();
+			System.out.println("RunSSOLWorker: courseIDs fetched with size "
+					+ courseIDs.size());
+			while (true) {
+				ArrayList<Integer> results = ssolController.runSSOL(courseIDs);
+				for (int i = results.size() - 1; i >= 0; i--) {
+					System.out.println("loop started");
+
+					if (results.get(i) == SSOL.REGISTRATION_SUCCESSFUL) {
+						courseIDs.remove(i);
+						System.out.println("DONE");
+					} else if (results.get(i) == SSOL.SECTION_NOT_FOUND) {
+						System.out.println("NOT FOUND");
+					} else if (results.get(i) == SSOL.REGISTRATION_UNSUCCESSFUL) {
+						System.out.println("UNSUCCESSFUL");
+					}
+					System.out.println("loop completed");
+				}
+				System.out
+						.println("RunSSOLWorker: one round of fetching complete");
+				System.out.println("RunSSOLWorker: Sleeping");
+				Thread.sleep(50000);
+			}
 		}
-		
+
 	}
 
 	private class KonamiListener implements KeyListener {
@@ -794,36 +715,6 @@ public class SSOLGUI {
 					SSOLGUI.this.lblBlockStatusIndicator
 							.setForeground(Color.GREEN);
 					Thread.sleep(60000);
-				}
-			}
-		}
-	}
-
-	private class ToggleListener implements ActionListener {
-
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			if (arg0.getSource() == chckbxEnableAdvancedParameters) {
-				if (chckbxEnableAdvancedParameters.isSelected()) {
-					txtNumberOfTries.setEnabled(true);
-					txtWaitTime.setEnabled(true);
-					textFieldHour.setEnabled(true);
-					txtFieldMin.setEnabled(true);
-					labelColon.setEnabled(true);
-					lblTries.setEnabled(true);
-					lblStartTime.setEnabled(true);
-					lblWaitTime.setEnabled(true);
-					System.out.println("SSOLGUI: Toggling Advanced Parameters");
-				} else {
-					txtNumberOfTries.setEnabled(false);
-					txtWaitTime.setEnabled(false);
-					textFieldHour.setEnabled(false);
-					txtFieldMin.setEnabled(false);
-					labelColon.setEnabled(false);
-					lblTries.setEnabled(false);
-					lblStartTime.setEnabled(false);
-					lblWaitTime.setEnabled(false);
-					System.out.println("SSOLGUI: Toggling Advanced Parameters");
 				}
 			}
 		}

@@ -137,7 +137,9 @@ public class SSOLController {
 	 */
 	public ArrayList<Integer> runSSOL(ArrayList<Integer> courseIDs) {
 		ArrayList<Integer> results = new ArrayList<Integer>();
+		System.out.println("runSSOL: calling new SSOL");
 		ssol = new SSOL(uni, password, semesterChoice);
+		System.out.println("runSSOL: logging in");
 		ssol.login();
 		ssol.goToRegistration();
 		ssol.chooseSemester(semesterChoice);
@@ -146,6 +148,7 @@ public class SSOLController {
 			int result = ssol.searchAndRegister(courseID);
 			results.add(result);
 		}
+		System.out.println("runSSOL: returning results");
 		return results;
 	}
 }
