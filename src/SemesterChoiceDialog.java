@@ -26,6 +26,7 @@ public class SemesterChoiceDialog extends JDialog {
 	 * Create the dialog.
 	 */
 	public SemesterChoiceDialog() {
+		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 		setAlwaysOnTop(true);
 
 		semesterChoice = "";
