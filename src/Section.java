@@ -33,7 +33,11 @@ public class Section implements CourseText {
 	private String MeetsOn1;
 	private Integer MaxSize;
 	private Integer NumEnrolled;
+	private String SectionFull;
 	
+	public String getSectionFull() {
+		return SectionFull;
+	}
 	
 	@Override
 	public String getCourseNumber() {

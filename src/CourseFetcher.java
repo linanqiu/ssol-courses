@@ -87,6 +87,26 @@ public class CourseFetcher {
 	}
 	
 	/**
+	 * Return a Section object corresponding to the full number
+	 * @param dept Department code
+	 * @param courseNumber The course number
+	 * @param term Term code to limit search
+	 * @param secNumber Section to search for
+	 * @return A Section object if found, or null
+	 * @throws IOException
+	 */
+	public Section getSectionByCourseNumber(String dept, String courseNumber, String secNumber, String term) throws IOException {
+		Course result = getCourseByNumber(dept, courseNumber, term);
+		if (result == null) // Not found
+			return null;
+		Section[] sections = result.getSections();
+		for (Section i : sections)
+			if (i.getSectionFull().contains(secNumber))
+				return i;
+		return null; // Not found
+	}
+	
+	/**
 	 * Get a section by its call number
 	 * @param callNumber callNumber of the section queried.
 	 * @return A Section object, or null if the call number does not exist
@@ -105,7 +125,17 @@ public class CourseFetcher {
 		if (jsonSections.size() == 0) // Not Found
 			return null;
 		else
-			return gson.fromJson(jsonSections.get(0), Section.class);
+		{
+			String courseNumber = jsonSections.get(0).getAsJsonObject().get("Course").getAsString();
+			String term = jsonSections.get(0).getAsJsonObject().get("Term").getAsString();
+			
+			Course result = getCourseByNumber(null, courseNumber, term); // Find the corresponding course
+			Section[] sections = result.getSections();
+			for (Section i : sections)
+				if (i.getCallNumber() == callNumber)
+					return i;
+			return null; // Not found
+		}
 	}
 	
 	/**
