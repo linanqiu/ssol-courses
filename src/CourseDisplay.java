@@ -18,7 +18,6 @@ import javax.swing.SwingConstants;
 
 public class CourseDisplay extends JFrame {
 
-	private JPanel contentPane;
 	private JTextField courseNumber;
 	private JTextField title;
 	private JLabel lblCourseNumber;
