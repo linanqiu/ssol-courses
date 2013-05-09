@@ -100,7 +100,7 @@ public class CourseDisplay extends JFrame {
 		getContentPane().add(lblCallNumber, "cell 2 5,alignx trailing,aligny center");
 		
 		callNumber = new JTextField();
-		callNumber.setEnabled(false);
+		callNumber.setEditable(false);
 		getContentPane().add(callNumber, "cell 3 5,growx");
 		callNumber.setColumns(10);
 		
@@ -189,7 +189,6 @@ public class CourseDisplay extends JFrame {
 			}
 			else
 			{
-				System.out.println("Set");
 				full.setText("Not Full");
 				full.setBackground(Color.GREEN);
 			}
