@@ -4,6 +4,8 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.google.gson.Gson;
@@ -138,7 +140,13 @@ public class CourseFetcher {
 		@Override
 		public Date deserialize(JsonElement json, Type typeOfT,
 				JsonDeserializationContext context) throws JsonParseException {
-			return new Date(json.getAsJsonPrimitive().getAsString());
+			SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+			try {
+				return formatter.parse(json.getAsJsonPrimitive().getAsString());
+			} catch (ParseException e) {
+				e.printStackTrace();
+				return null;
+			}
 		}
 		
 	}

@@ -28,12 +28,17 @@ public class Course implements CourseText{
 	public void postProcess(String term) {
 		ArrayList<Section> termSections = new ArrayList<Section>();
 		for (Section i:Sections)
-			if (i.getSemester() == term)
+			if (i.getSemester().equals(term))
 			{
 				i.setCourse(this);
 				termSections.add(i);
 			}
 		Sections = termSections.toArray(new Section[termSections.size()]);
+	}
+	
+	public Section[] getSections()
+	{
+		return Sections;
 	}
 
 	@Override

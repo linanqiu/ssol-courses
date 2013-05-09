@@ -1,74 +1,71 @@
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
+import java.awt.Color;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import java.awt.CardLayout;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import java.awt.GridLayout;
 import javax.swing.JButton;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.ColumnSpec;
-import com.jgoodies.forms.layout.RowSpec;
-import com.jgoodies.forms.factories.FormFactory;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.text.SimpleDateFormat;
+
 import javax.swing.JLabel;
-import javax.swing.BoxLayout;
-import javax.swing.LayoutStyle.ComponentPlacement;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.JTextField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.JSeparator;
+import javax.swing.SwingConstants;
 
 
 public class CourseDisplay extends JFrame {
 
 	private JPanel contentPane;
-	private JTextField textField;
-	private JTextField textField_1;
+	private JTextField courseNumber;
+	private JTextField title;
 	private JLabel lblCourseNumber;
 	private JLabel lblDescription;
 	private JScrollPane scrollPane;
-	private JTextPane textPane;
+	private JTextPane description;
 	private JLabel lblNewLabel;
-	private JTextField textField_2;
+	private JTextField credits;
 	private JSeparator separator;
 	private JLabel lblInstructor;
-	private JTextField textField_3;
+	private JTextField instructor;
 	private JLabel lblCallNumber;
-	private JTextField textField_4;
+	private JTextField callNumber;
 	private JLabel lblTime;
-	private JTextField textField_5;
+	private JTextField time;
 	private JLabel lblLocation;
-	private JTextField textField_6;
+	private JTextField location;
 	private JLabel lblRegistration;
-	private JTextField textField_7;
-	private JLabel lblNewLabel_1;
-	private JSeparator separator_1;
+	private JTextField registration;
+	private JLabel full;
+	private JSeparator seperator1;
 	private JButton btnNewButton;
 
-	@SuppressWarnings("unused")
 	private CourseDisplay() {
+		setResizable(false);
+		setSize(500, 400);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		
 		setTitle("Section Information");
 		getContentPane().setLayout(new MigLayout("", "[116.00px,left][353px,grow,left][89.00px,right][353px,grow,right]", "[28px][16px][87.00][][][][][][][]"));
 		
 		lblCourseNumber = new JLabel("Course Number");
 		getContentPane().add(lblCourseNumber, "cell 0 0,alignx center,aligny center");
 		
-		textField = new JTextField();
-		getContentPane().add(textField, "cell 1 0 3 1,growx,aligny top");
-		textField.setColumns(10);
+		courseNumber = new JTextField();
+		courseNumber.setEditable(false);
+		courseNumber.setHorizontalAlignment(SwingConstants.LEFT);
+		getContentPane().add(courseNumber, "cell 1 0 3 1,growx,aligny top");
+		courseNumber.setColumns(10);
 		
 		JLabel lblTitle = new JLabel("Title");
 		getContentPane().add(lblTitle, "cell 0 1,alignx center,aligny center");
 		
-		textField_1 = new JTextField();
-		getContentPane().add(textField_1, "cell 1 1 3 1,growx");
-		textField_1.setColumns(10);
+		title = new JTextField();
+		title.setEditable(false);
+		getContentPane().add(title, "cell 1 1 3 1,growx");
+		title.setColumns(10);
 		
 		lblDescription = new JLabel("Description");
 		getContentPane().add(lblDescription, "cell 0 2,alignx center,aligny center");
@@ -76,15 +73,17 @@ public class CourseDisplay extends JFrame {
 		scrollPane = new JScrollPane();
 		getContentPane().add(scrollPane, "cell 1 2 3 1,grow");
 		
-		textPane = new JTextPane();
-		scrollPane.setViewportView(textPane);
+		description = new JTextPane();
+		description.setEditable(false);
+		scrollPane.setViewportView(description);
 		
 		lblNewLabel = new JLabel("Credits");
 		getContentPane().add(lblNewLabel, "cell 0 3,alignx center,aligny center");
 		
-		textField_2 = new JTextField();
-		getContentPane().add(textField_2, "cell 1 3 3 1,growx");
-		textField_2.setColumns(10);
+		credits = new JTextField();
+		credits.setEditable(false);
+		getContentPane().add(credits, "cell 1 3 3 1,growx");
+		credits.setColumns(10);
 		
 		separator = new JSeparator();
 		getContentPane().add(separator, "cell 0 4 4 1");
@@ -92,62 +91,116 @@ public class CourseDisplay extends JFrame {
 		lblInstructor = new JLabel("Instructor");
 		getContentPane().add(lblInstructor, "cell 0 5,alignx center,aligny center");
 		
-		textField_3 = new JTextField();
-		getContentPane().add(textField_3, "cell 1 5,growx");
-		textField_3.setColumns(10);
+		instructor = new JTextField();
+		instructor.setEditable(false);
+		getContentPane().add(instructor, "cell 1 5,growx");
+		instructor.setColumns(10);
 		
 		lblCallNumber = new JLabel("Call Number");
 		getContentPane().add(lblCallNumber, "cell 2 5,alignx trailing,aligny center");
 		
-		textField_4 = new JTextField();
-		getContentPane().add(textField_4, "cell 3 5,growx");
-		textField_4.setColumns(10);
+		callNumber = new JTextField();
+		callNumber.setEnabled(false);
+		getContentPane().add(callNumber, "cell 3 5,growx");
+		callNumber.setColumns(10);
 		
 		lblTime = new JLabel("Time");
 		getContentPane().add(lblTime, "cell 0 6,alignx center,aligny center");
 		
-		textField_5 = new JTextField();
-		getContentPane().add(textField_5, "cell 1 6,growx");
-		textField_5.setColumns(10);
+		time = new JTextField();
+		time.setEditable(false);
+		getContentPane().add(time, "cell 1 6,growx");
+		time.setColumns(10);
 		
 		lblLocation = new JLabel("Location");
 		getContentPane().add(lblLocation, "cell 2 6,alignx center,aligny center");
 		
-		textField_6 = new JTextField();
-		getContentPane().add(textField_6, "cell 3 6,growx");
-		textField_6.setColumns(10);
+		location = new JTextField();
+		location.setEditable(false);
+		getContentPane().add(location, "cell 3 6,growx");
+		location.setColumns(10);
 		
 		lblRegistration = new JLabel("Registration");
 		getContentPane().add(lblRegistration, "cell 0 7,alignx center,aligny center");
 		
-		textField_7 = new JTextField();
-		getContentPane().add(textField_7, "cell 1 7 2 1,growx");
-		textField_7.setColumns(10);
+		registration = new JTextField();
+		registration.setEditable(false);
+		registration.setHorizontalAlignment(SwingConstants.CENTER);
+		getContentPane().add(registration, "cell 1 7 2 1,growx");
+		registration.setColumns(10);
 		
-		lblNewLabel_1 = new JLabel("Full");
-		getContentPane().add(lblNewLabel_1, "cell 3 7,alignx center,aligny center");
+		full = new JLabel();
+		full.setOpaque(true);
+		getContentPane().add(full, "cell 3 7,alignx center,aligny center");
 		
-		separator_1 = new JSeparator();
-		getContentPane().add(separator_1, "cell 1 8");
+		seperator1 = new JSeparator();
+		getContentPane().add(seperator1, "cell 1 8");
 		
 		btnNewButton = new JButton("OK");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				CourseDisplay.this.dispose();
 			}
 		});
 		getContentPane().add(btnNewButton, "cell 0 9 4 1,alignx center,aligny center");
 	}
 	
 	/**
-	 * Create the frame.
+	 * Create the frame with course info
 	 */
 	public CourseDisplay(JFrame parent, CourseText info) {
-		setTitle("Section Information\n");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		setContentPane(contentPane);
-		contentPane.setLayout(new BorderLayout(0, 0));
+		this();
+		
+		courseNumber.setText(info.getCourseNumber());
+		title.setText(info.getTitle());
+		description.setText(info.getDescription());
+		credits.setText(String.valueOf(info.getCredits()/10.0));
+		
+		if (info.getInstructor()!=null)
+			instructor.setText(info.getInstructor());
+		else
+			instructor.setEnabled(false);
+		
+		if (info.getCallNumber()!=null)
+			callNumber.setText(info.getCallNumber().toString());
+		else
+			callNumber.setEnabled(false);
+		
+		SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
+		if (info.getMeetDay()!=null)
+			time.setText(info.getMeetDay()+" "+formatter.format(info.getStartTime())+"-"+formatter.format(info.getEndTime()));
+		else
+			time.setEnabled(false);
+		
+		if (info.getLocation()!=null)
+			location.setText(info.getLocation());
+		else
+			location.setEnabled(false);
+		
+		if (info.getNumEnroll()!=null)
+		{
+			int numEnroll = info.getNumEnroll();
+			int maxSize = info.getMaxSize();
+			registration.setText(String.valueOf(numEnroll)+"/"+String.valueOf(maxSize));
+			if (numEnroll >= maxSize)
+			{
+				full.setText("Full");
+				full.setBackground(Color.RED);
+			}
+			else
+			{
+				System.out.println("Set");
+				full.setText("Not Full");
+				full.setBackground(Color.GREEN);
+			}
+		}
+		else
+		{
+			full.setText("");
+			registration.setEnabled(false);
+		}
+		
+		this.setLocationRelativeTo(parent);
+		setVisible(true);
 	}
 }
