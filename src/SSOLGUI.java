@@ -118,7 +118,7 @@ public class SSOLGUI {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);
 		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[] { 0, 0, 0, 0 };
+		gridBagLayout.columnWidths = new int[] { 284, 0, 0, 0 };
 		gridBagLayout.rowHeights = new int[] { 189, 0, 0 };
 		gridBagLayout.columnWeights = new double[] { 1.0, 1.0, 0.0,
 				Double.MIN_VALUE };
