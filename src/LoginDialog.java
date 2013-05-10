@@ -35,6 +35,7 @@ public class LoginDialog extends JDialog {
 	 * Create the dialog.
 	 */
 	public LoginDialog() {
+		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 		setAlwaysOnTop(true);
 		setBounds(100, 100, 320, 152);
 		getContentPane().setLayout(new BorderLayout());

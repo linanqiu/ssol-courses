@@ -18,7 +18,6 @@ import java.awt.event.MouseListener;
 import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -32,8 +31,7 @@ import javax.swing.JTextArea;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingWorker;
 
-import javax.swing.JSpinner;
-import javax.swing.JCheckBox;
+
 import java.awt.Color;
 import java.awt.SystemColor;
 import java.io.File;
@@ -42,6 +40,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
@@ -51,6 +50,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
+import java.awt.Dimension;
 
 public class SSOLGUI {
 
@@ -79,6 +79,7 @@ public class SSOLGUI {
 	private JList listSectionsToAdd;
 	private SectionListModel sectionsToAddModel;
 	private ArrayList<Section> sectionsToAddList;
+	private JComboBox comboBoxDepartment;
 
 	private CourseFetcher courseFetcher;
 	
@@ -106,6 +107,8 @@ public class SSOLGUI {
 		courseFetcher = new CourseFetcher();
 		sectionsToAddModel = new SectionListModel();
 		
+		SwingWorker departmentSwingWorker = new DepartmentSwingWorker();
+		departmentSwingWorker.execute();
 		initialize();
 		ssolController = new SSOLController();
 		loginAndSemesterChoice();
@@ -122,11 +125,12 @@ public class SSOLGUI {
 		semesterChoiceDialog = new SemesterChoiceDialog();
 
 		frame = new JFrame();
+		frame.setMinimumSize(new Dimension(640, 480));
 		frame.setBounds(100, 100, 800, 600);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);
 		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[] { 0, 0, 0, 0 };
+		gridBagLayout.columnWidths = new int[] { 284, 0, 0, 0 };
 		gridBagLayout.rowHeights = new int[] { 189, 0, 0 };
 		gridBagLayout.columnWeights = new double[] { 1.0, 1.0, 0.0,
 				Double.MIN_VALUE };
@@ -320,7 +324,7 @@ public class SSOLGUI {
 		gbc_lblSectionDirectory.gridy = 0;
 		panelSectionDirectory.add(lblSectionDirectory, gbc_lblSectionDirectory);
 
-		JComboBox comboBoxDepartment = new JComboBox();
+		comboBoxDepartment = new JComboBox();
 		GridBagConstraints gbc_comboBoxDepartment = new GridBagConstraints();
 		gbc_comboBoxDepartment.gridwidth = 2;
 		gbc_comboBoxDepartment.insets = new Insets(0, 0, 5, 0);
@@ -599,20 +603,18 @@ public class SSOLGUI {
 			while (true) {
 				ArrayList<Integer> results = ssolController.runSSOL(courseIDs);
 				for (int i = results.size() - 1; i >= 0; i--) {
-					System.out.println("loop started");
 
 					if (results.get(i) == SSOL.REGISTRATION_SUCCESSFUL) {
 						courseIDs.remove(i);
-						System.out.println("DONE");
+						System.out.println("RunSSOLWorker: Result DONE");
 					} else if (results.get(i) == SSOL.SECTION_NOT_FOUND) {
-						System.out.println("NOT FOUND");
+						System.out.println("RunSSOLWorker: Result NOT FOUND");
 					} else if (results.get(i) == SSOL.REGISTRATION_UNSUCCESSFUL) {
-						System.out.println("UNSUCCESSFUL");
+						System.out.println("RunSSOLWorker: Result UNSUCCESSFUL");
 					}
-					System.out.println("loop completed");
 				}
 				System.out
-						.println("RunSSOLWorker: one round of fetching complete");
+						.println("RunSSOLWorker: One round of fetching complete");
 				System.out.println("RunSSOLWorker: Sleeping");
 				Thread.sleep(50000);
 			}
@@ -633,11 +635,11 @@ public class SSOLGUI {
 				SSOLGUI.this.ssolController.setSuperUser();
 				panelCredits.setBackground(Color.gray);
 				lblHugeShoutoutsTo
-						.setText("<html><center> SWAP SWAP SWAP SWAP <br> SWAP SWAP SWAP SWAP </center> </html>");
+						.setText("SWAP");
 				lblLinanQiu
-						.setText("<html><center> SWAP SWAP SWAP SWAP <br> SWAP SWAP SWAP SWAP </center> </html>");
+						.setText("SWAP");
 				lblXingzhouHe
-						.setText("<html><center> SWAP SWAP SWAP SWAP <br> SWAP SWAP SWAP SWAP </center> </html>");
+						.setText("SWAP");
 
 				System.out.println("SSOLGUI: konami code successful");
 			}
@@ -705,6 +707,31 @@ public class SSOLGUI {
 		}
 
 	}
+	
+	private class DepartmentSwingWorker extends SwingWorker<ArrayList<String>, Void> {
+
+		@Override
+		protected ArrayList<String> doInBackground() throws Exception {
+			DepartmentParser departmentParser = new DepartmentParser();
+			ArrayList<String> departments = departmentParser.getDepartments();
+			return departments;
+		}
+		
+		protected void done() {
+			try {
+				ArrayList<String> departments = get();
+				for (String department:departments) {
+					comboBoxDepartment.addItem(department);
+				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				e.printStackTrace();
+			}
+			
+		}
+		
+	}
 
 	private class BlockCheckSwingWorker extends SwingWorker<Void, Void> {
 
@@ -747,7 +774,7 @@ public class SSOLGUI {
 			}
 		}
 	}
-
+	
 	private class SectionListModel extends AbstractListModel
 	{
 		private ArrayList<Section> sections;
