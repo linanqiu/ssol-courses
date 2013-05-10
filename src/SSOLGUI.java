@@ -3,6 +3,7 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
@@ -10,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -19,6 +21,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -26,6 +29,7 @@ import javax.swing.JTree;
 import javax.swing.JScrollPane;
 import javax.swing.JList;
 import javax.swing.JTextArea;
+import javax.swing.ListCellRenderer;
 import javax.swing.SwingWorker;
 
 import javax.swing.JSpinner;
@@ -33,6 +37,7 @@ import javax.swing.JCheckBox;
 import java.awt.Color;
 import java.awt.SystemColor;
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -71,9 +76,12 @@ public class SSOLGUI {
 	private JLabel lblXingzhouHe;
 	private JPanel panelCredits;
 	private JList listExistingSections;
-	private DefaultListModel sectionsToAddModel;
+	private JList listSectionsToAdd;
+	private SectionListModel sectionsToAddModel;
 	private ArrayList<Section> sectionsToAddList;
 
+	private CourseFetcher courseFetcher;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -94,7 +102,10 @@ public class SSOLGUI {
 	 * Create the application.
 	 */
 	public SSOLGUI() {
-		sectionsToAddModel = new DefaultListModel();
+		// Add a courseFetcher
+		courseFetcher = new CourseFetcher();
+		sectionsToAddModel = new SectionListModel();
+		
 		initialize();
 		ssolController = new SSOLController();
 		loginAndSemesterChoice();
@@ -329,6 +340,25 @@ public class SSOLGUI {
 		txtSearch.setColumns(10);
 
 		btnSearch = new JButton("Search");
+		btnSearch.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// Fetch the courses
+				Course[] courses = null;
+				try {
+					courses = courseFetcher.getCoursesByKeyword(null, 
+							txtSearch.getText(), 
+							ssolController.getSemesterChoice());
+				} catch (IOException e1) {
+					JOptionPane.showInternalMessageDialog(frame,
+							"Search operation failed: no network connection.",
+							"Error", JOptionPane.ERROR_MESSAGE);
+					courses = new Course[0];
+				}
+				
+				// Fit into the classes
+				
+			}
+		});
 		GridBagConstraints gbc_btnSearch = new GridBagConstraints();
 		gbc_btnSearch.fill = GridBagConstraints.HORIZONTAL;
 		gbc_btnSearch.insets = new Insets(0, 0, 5, 0);
@@ -358,6 +388,15 @@ public class SSOLGUI {
 		panelSectionDirectory.add(buttonAddSection, gbc_buttonAddSection);
 
 		buttonRemoveSection = new JButton("-");
+		buttonRemoveSection.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				List<Section> selected = listSectionsToAdd.getSelectedValuesList();
+				SectionListModel currentModel = (SectionListModel) listSectionsToAdd.getModel();
+				for (Section i:selected)
+					currentModel.remove(i);
+					
+			}
+		});
 		GridBagConstraints gbc_buttonRemoveSection = new GridBagConstraints();
 		gbc_buttonRemoveSection.fill = GridBagConstraints.BOTH;
 		gbc_buttonRemoveSection.gridx = 1;
@@ -397,8 +436,10 @@ public class SSOLGUI {
 		panelSectionsToAdd.add(scrollPaneSectionsToAdd,
 				gbc_scrollPaneSectionsToAdd);
 
-		JList listSectionsToAdd = new JList();
+		listSectionsToAdd = new JList();
 		listSectionsToAdd.setModel(sectionsToAddModel);
+		listSectionsToAdd.addMouseListener(new SectionMouseListener());
+		listSectionsToAdd.setCellRenderer(new SectionRenderer());
 		scrollPaneSectionsToAdd.setViewportView(listSectionsToAdd);
 
 		JPanel panelRun = new JPanel();
@@ -498,25 +539,12 @@ public class SSOLGUI {
 
 	private void buildCurrentSections() {
 		System.out.println("buildCurrentSections started");
-
-		ArrayList<String> currentSections = ssolController.getCurrentSections();
-
-		DefaultListModel currentSectionsModel = new DefaultListModel();
-
-		for (String currentSection : currentSections) {
-			String element = "<html>";
-			String[] lines = currentSection.split("\n");
-			for (int i = 0; i < lines.length; i++) {
-				element = element + lines[i];
-				if (i != lines.length - 1) {
-					element = element + "<br>";
-				}
-			}
-			element = element + "</html>";
-			currentSectionsModel.addElement(element);
-		}
-
+		ArrayList<Section> currentSections = ssolController.getCurrentSections();
+		// Set Data model, mouse listener and renderer.
+		SectionListModel currentSectionsModel = new SectionListModel(currentSections);
+		listExistingSections.addMouseListener(new SectionMouseListener());
 		listExistingSections.setModel(currentSectionsModel);
+		listExistingSections.setCellRenderer(new SectionRenderer());
 	}
 
 	public ArrayList<Integer> getCourseIDs() {
@@ -720,4 +748,97 @@ public class SSOLGUI {
 		}
 	}
 
+	private class SectionListModel extends AbstractListModel
+	{
+		private ArrayList<Section> sections;
+		
+		public SectionListModel()
+		{
+			sections = new ArrayList<Section>();
+		}
+		
+		/**
+		 * Remove a section from the list
+		 * @param section Section to be removed
+		 */
+		public void remove(Section section) {
+			int id = sections.indexOf(section);
+			if (id == -1)
+				throw new IllegalArgumentException();
+			sections.remove(id);
+			fireIntervalRemoved(this, id, id);
+		}
+		
+		/**
+		 * Add a section to the list
+		 * @param section Section to be added
+		 */
+		public void add(Section section) {
+			if (!sections.contains(section))
+			{
+				sections.add(section);
+				fireIntervalAdded(this, sections.size()-1, sections.size()-1);
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		public SectionListModel(ArrayList<Section> sections)
+		{
+			if (sections == null)
+				throw new IllegalArgumentException();
+			this.sections = (ArrayList<Section>) sections.clone(); // Prevent Problems with changing sections
+		}
+		
+		@Override
+		public int getSize() {
+			return sections.size();
+		}
+
+		@Override
+		public Object getElementAt(int index) {
+			return sections.get(index);
+		}
+	}
+	
+	private class SectionMouseListener extends MouseAdapter {
+		public void mouseClicked(MouseEvent evt) {
+	        JList list = (JList)evt.getSource();
+	        int index = 0;
+	        if (evt.getClickCount() >= 2) {
+	            index = list.locationToIndex(evt.getPoint());
+	        }
+	        else return;
+	        CourseDisplay display = new CourseDisplay(
+	        		frame, (Section) list.getModel().getElementAt(index));
+	    }
+	}
+
+	private class SectionRenderer extends JLabel implements ListCellRenderer<Section> {
+
+		public SectionRenderer() {
+			setOpaque(true);
+			setHorizontalAlignment(LEFT);
+			setVerticalAlignment(CENTER);
+	    }
+		
+		@Override
+		public Component getListCellRendererComponent(
+				JList<? extends Section> list, Section value, int index,
+				boolean isSelected, boolean cellHasFocus) {
+			if (isSelected) {
+				setBackground(list.getSelectionBackground());
+				setForeground(list.getSelectionForeground());
+			} else {
+				setBackground(list.getBackground());
+				setForeground(list.getForeground());
+			}
+			setText("<html><body><p>" +
+					value.toString() +
+					"<br>" + value.getTitle() +
+					"</p></body></html>"
+					);
+			return this;
+		}
+		
+	}
 }

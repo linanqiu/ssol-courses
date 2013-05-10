@@ -134,12 +134,15 @@ public class SSOL {
 		// shit. so we start from the 4th one. counts till size() - 1 because
 		// the last row is useless too. then we add the text of each of
 		// them into the arraylist to be returned
+		
 		for (int i = 3; i < courseTrs.size() - 1; i++) {
 			WebElement courseTd = courseTrs.get(i)
 					.findElements(By.cssSelector("td")).get(0);
-			currentSections.add(courseTd.getText());
+			String currentSection = courseTd.getText();
+			currentSections.add(currentSection);
 			System.out.println("currentCourses: " + courseTd.getText()
 					+ " added");
+			
 		}
 
 		System.out.println("currentCourses finished");

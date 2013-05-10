@@ -35,13 +35,27 @@ public class Section implements CourseText {
 	private Integer NumEnrolled;
 	private String SectionFull;
 	
+	public boolean equals(Section that)
+	{
+		if (that == null || getCallNumber() != that.getCallNumber())
+			return false;
+		return true;
+	}
+	
+	public String toString()
+	{
+		return getCourseNumber().substring(0, 4) + " " +
+				getCourseNumber().substring(4, 9) + " sec " +
+				getCourseNumber().substring(9);
+	}
+	
 	public String getSectionFull() {
 		return SectionFull;
 	}
 	
 	@Override
 	public String getCourseNumber() {
-		return parent.getCourseNumber();
+		return SectionFull;
 	}
 
 	@Override

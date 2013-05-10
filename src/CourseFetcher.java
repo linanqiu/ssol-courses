@@ -75,6 +75,8 @@ public class CourseFetcher {
 		String httpResult = httpGetRequest(urlString);
 		
 		JsonObject httpJson = gson.fromJson(httpResult, JsonObject.class);
+		if (httpJson.getAsJsonPrimitive("status_code").getAsInt()==204)
+			return null;
 		if (httpJson.getAsJsonPrimitive("status_code").getAsInt()!=200)
 			throw new IOException(); //HTTP Return not 200;
 		if (httpJson.getAsJsonArray("data").size() == 0)
@@ -174,7 +176,6 @@ public class CourseFetcher {
 			try {
 				return formatter.parse(json.getAsJsonPrimitive().getAsString());
 			} catch (ParseException e) {
-				e.printStackTrace();
 				return null;
 			}
 		}

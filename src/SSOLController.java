@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -15,12 +16,14 @@ public class SSOLController {
 	private ArrayList<Section> currentSections;
 	private ArrayList<String> semesterOptions;
 	private String semesterChoice;
+	private CourseFetcher courseFetcher;
 
 	/**
 	 * creates a SSOLController
 	 */
 	public SSOLController() {
 		currentSections = new ArrayList<Section>();
+		courseFetcher = new CourseFetcher();
 		semesterChoice = "";
 	}
 
@@ -61,11 +64,31 @@ public class SSOLController {
 	/**
 	 * gets current courses
 	 */
-	public ArrayList<String> getCurrentSections() {
+	public ArrayList<Section> getCurrentSections() {
 
 		ssol.currentSections();
 
-		return ssol.getCurrentSections();
+		ArrayList<String> sectionStrings = ssol.getCurrentSections();
+		ArrayList<Section> sections = new ArrayList<Section>();
+		for (String i : sectionStrings)
+		{
+			Section session = null;
+			try {
+				session = courseFetcher.getSectionByCourseNumber(
+						i.substring(0, 4),
+						i.substring(6, 10), 
+						i.substring(15, 18),
+						semesterChoice);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			finally
+			{
+				if (session!=null)
+					sections.add(session);
+			}
+		}
+		return sections;
 	}
 
 	/**
