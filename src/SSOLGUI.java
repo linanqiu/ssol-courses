@@ -86,7 +86,8 @@ public class SSOLGUI {
 	private ArrayList<Section> sectionsToAddList;
 	private JComboBox comboBoxDepartment;
 	private JTree treeSectionTree;
-
+	private ArrayList<Section> successful, pending, failed;
+	
 	private CourseFetcher courseFetcher;
 	
 	/**
@@ -112,6 +113,11 @@ public class SSOLGUI {
 		// Add a courseFetcher
 		courseFetcher = new CourseFetcher();
 		sectionsToAddModel = new SectionListModel();
+		
+		//Create color lists
+		successful = new ArrayList<Section>();
+		pending = new ArrayList<Section>();
+		failed = new ArrayList<Section>();
 		
 		SwingWorker departmentSwingWorker = new DepartmentSwingWorker();
 		departmentSwingWorker.execute();
@@ -427,6 +433,7 @@ public class SSOLGUI {
 		buttonAddSection.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				TreePath[] selects = treeSectionTree.getSelectionPaths();
+				if (selects == null) return;
 				for (TreePath select:selects)
 				{
 					if (select.getLastPathComponent() instanceof Section)
@@ -644,23 +651,34 @@ public class SSOLGUI {
 			System.out.println("RunSSOLWorker: courseIDs fetched with size "
 					+ courseIDs.size());
 			while (true) {
+				successful.clear(); pending.clear(); failed.clear(); //Update colors
 				ArrayList<Integer> results = ssolController.runSSOL(courseIDs);
 				for (int i = results.size() - 1; i >= 0; i--) {
 
 					if (results.get(i) == SSOL.REGISTRATION_SUCCESSFUL) {
+						successful.add(courseIDs.get(i));
 						courseIDs.remove(i);
 						System.out.println("RunSSOLWorker: Result DONE");
 					} else if (results.get(i) == SSOL.SECTION_NOT_FOUND) {
+						pending.add(courseIDs.get(i));
+						courseIDs.remove(i);
 						System.out.println("RunSSOLWorker: Result NOT FOUND");
 					} else if (results.get(i) == SSOL.REGISTRATION_UNSUCCESSFUL) {
+						failed.add(courseIDs.get(i));
 						System.out.println("RunSSOLWorker: Result UNSUCCESSFUL");
 					}
 				}
 				System.out
 						.println("RunSSOLWorker: One round of fetching complete");
 				System.out.println("RunSSOLWorker: Sleeping");
+				publish();
 				Thread.sleep(50000);
 			}
+		}
+		
+		protected void process(List<Void> chunks) 
+		{
+			listSectionsToAdd.repaint();
 		}
 
 	}
@@ -718,35 +736,10 @@ public class SSOLGUI {
 		}
 	}
 
-	private class FrameListener implements MouseListener {
+	private class FrameListener extends MouseAdapter {
 
-		@Override
 		public void mouseClicked(MouseEvent arg0) {
 			frame.requestFocus();
-		}
-
-		@Override
-		public void mouseEntered(MouseEvent arg0) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void mouseExited(MouseEvent arg0) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void mousePressed(MouseEvent arg0) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent arg0) {
-			// TODO Auto-generated method stub
-
 		}
 
 	}
@@ -910,6 +903,12 @@ public class SSOLGUI {
 			} else {
 				setBackground(list.getBackground());
 				setForeground(list.getForeground());
+				if (successful.contains(value))
+					setBackground(Color.GREEN);
+				else if (failed.contains(value))
+					setBackground(Color.RED);
+				else if (pending.contains(value))
+					setBackground(Color.YELLOW);
 			}
 			setText("<html><body><p>" +
 					value.getCourseNumber().substring(0, 4) + " " +
