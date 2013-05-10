@@ -660,18 +660,21 @@ public class SSOLGUI {
 						courseIDs.remove(i);
 						System.out.println("RunSSOLWorker: Result DONE");
 					} else if (results.get(i) == SSOL.SECTION_NOT_FOUND) {
-						pending.add(courseIDs.get(i));
+						failed.add(courseIDs.get(i));
 						courseIDs.remove(i);
 						System.out.println("RunSSOLWorker: Result NOT FOUND");
 					} else if (results.get(i) == SSOL.REGISTRATION_UNSUCCESSFUL) {
-						failed.add(courseIDs.get(i));
+						pending.add(courseIDs.get(i));
 						System.out.println("RunSSOLWorker: Result UNSUCCESSFUL");
 					}
 				}
 				System.out
 						.println("RunSSOLWorker: One round of fetching complete");
-				System.out.println("RunSSOLWorker: Sleeping");
+				
 				publish();
+				if (courseIDs.isEmpty())
+					return null;
+				System.out.println("RunSSOLWorker: Sleeping");
 				Thread.sleep(50000);
 			}
 		}
@@ -679,6 +682,15 @@ public class SSOLGUI {
 		protected void process(List<Void> chunks) 
 		{
 			listSectionsToAdd.repaint();
+		}
+		
+		protected void done()
+		{
+			System.out.println("RunSSOL WOrker: ssolWorker Done");
+			btnStart.setEnabled(true);
+			btnStop.setEnabled(false);
+			buttonAddSection.setEnabled(true);
+			buttonRemoveSection.setEnabled(true);
 		}
 
 	}
