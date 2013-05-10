@@ -1,3 +1,4 @@
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 
@@ -44,9 +45,24 @@ public class Section implements CourseText {
 	
 	public String toString()
 	{
-		return getCourseNumber().substring(0, 4) + " " +
-				getCourseNumber().substring(4, 9) + " sec " +
-				getCourseNumber().substring(9);
+		return "Sec " + getCourseNumber().substring(9) + ":" + getInstructor() +", " + getTime();
+	}
+	
+	/**
+	 * Get parsed time
+	 * @return Time as in a string, ready to be displayed
+	 */
+	public String getTime() {
+		if (getMeetDay()!=null)
+		{
+			SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
+			return getMeetDay()+" "+formatter.format(getStartTime())+"-"+formatter.format(getEndTime());
+		}
+		else
+		{
+			return "n/a";
+		}
+			
 	}
 	
 	public String getSectionFull() {

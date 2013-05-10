@@ -22,6 +22,10 @@ public class Course implements CourseText{
 	private String CourseTitle;
 	private String Description;
 	
+	public String toString() {
+		return getCourseNumber() + " " + getTitle();
+	}
+	
 	/**
 	 * Delete sections not within the term. Used for post-processing
 	 */

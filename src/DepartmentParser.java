@@ -26,6 +26,8 @@ public class DepartmentParser {
 
 	public ArrayList<String> getDepartments() {
 		ArrayList<String> allDepartments = new ArrayList<String>();
+
+		allDepartments.add("(All)"); // Add "unlimited"
 		System.out.println("DepartmentParser: getting departments");
 		ArrayList<SwingWorker> swingWorkers = new ArrayList<SwingWorker>();
 		for (String alphabet : alphabets) {
@@ -63,6 +65,7 @@ public class DepartmentParser {
 		protected ArrayList<String> doInBackground() throws Exception {
 			System.out.println("Fetching " + alphabet);
 			ArrayList<String> departments = new ArrayList<String>();
+			
 			String deptURL = baseURL + alphabet + ".html";
 			driver = new HtmlUnitDriver(true);
 			driver.get(deptURL);

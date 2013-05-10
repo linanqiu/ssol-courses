@@ -6,6 +6,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 import com.google.gson.Gson;
@@ -120,6 +121,8 @@ public class CourseFetcher {
 		String httpResult = httpGetRequest(urlString);
 		
 		JsonObject httpJson = gson.fromJson(httpResult, JsonObject.class);
+		if (httpJson.getAsJsonPrimitive("status_code").getAsInt()==204)
+			return null;
 		if (httpJson.getAsJsonPrimitive("status_code").getAsInt()!=200)
 			throw new IOException(); // Error from remote server
 		
@@ -156,12 +159,21 @@ public class CourseFetcher {
 		String httpResult = httpGetRequest(urlString);
 		
 		JsonObject httpJson = gson.fromJson(httpResult, JsonObject.class);
+		if (httpJson.getAsJsonPrimitive("status_code").getAsInt()==204)
+			return new Course[0];
 		if (httpJson.getAsJsonPrimitive("status_code").getAsInt()!=200)
 			throw new IOException(); //HTTP Return not 200;
 		Course[] result = gson.fromJson(httpJson.getAsJsonArray("data"), Course[].class); // Automatic parser provided by GSON
+		
+		//Delete results with no sections
+		ArrayList<Course> results = new ArrayList<Course>();
 		for (Course i :result)
+		{
 			i.postProcess(term);
-		return result;
+			if (i.getSections().length!=0)
+				results.add(i);
+		}
+		return results.toArray(new Course[results.size()]);
 	}
 	
 	/**

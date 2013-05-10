@@ -40,10 +40,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreePath;
 import javax.swing.SwingConstants;
 
 import org.openqa.selenium.By;
@@ -80,6 +85,7 @@ public class SSOLGUI {
 	private SectionListModel sectionsToAddModel;
 	private ArrayList<Section> sectionsToAddList;
 	private JComboBox comboBoxDepartment;
+	private JTree treeSectionTree;
 
 	private CourseFetcher courseFetcher;
 	
@@ -125,12 +131,12 @@ public class SSOLGUI {
 		semesterChoiceDialog = new SemesterChoiceDialog();
 
 		frame = new JFrame();
-		frame.setMinimumSize(new Dimension(640, 480));
+		frame.setMinimumSize(new Dimension(800, 600));
 		frame.setBounds(100, 100, 800, 600);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);
 		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[] { 284, 0, 0, 0 };
+		gridBagLayout.columnWidths = new int[] { 284, 150, 0, 0 };
 		gridBagLayout.rowHeights = new int[] { 189, 0, 0 };
 		gridBagLayout.columnWeights = new double[] { 1.0, 1.0, 0.0,
 				Double.MIN_VALUE };
@@ -325,6 +331,7 @@ public class SSOLGUI {
 		panelSectionDirectory.add(lblSectionDirectory, gbc_lblSectionDirectory);
 
 		comboBoxDepartment = new JComboBox();
+		comboBoxDepartment.setPrototypeDisplayValue("");
 		GridBagConstraints gbc_comboBoxDepartment = new GridBagConstraints();
 		gbc_comboBoxDepartment.gridwidth = 2;
 		gbc_comboBoxDepartment.insets = new Insets(0, 0, 5, 0);
@@ -349,17 +356,28 @@ public class SSOLGUI {
 				// Fetch the courses
 				Course[] courses = null;
 				try {
-					courses = courseFetcher.getCoursesByKeyword(null, 
+					String dept = (String) comboBoxDepartment.getSelectedItem();
+					if (dept == "(All)")
+						dept = null;
+					else
+						dept = dept.substring(0, 4); // Parse code
+					
+					courses = courseFetcher.getCoursesByKeyword(dept, 
 							txtSearch.getText(), 
 							ssolController.getSemesterChoice());
+					if (courses.length == 0)
+						JOptionPane.showMessageDialog(null,
+								"No courses found",
+								"Message", JOptionPane.INFORMATION_MESSAGE);
 				} catch (IOException e1) {
-					JOptionPane.showInternalMessageDialog(frame,
+					JOptionPane.showMessageDialog(null,
 							"Search operation failed: no network connection.",
 							"Error", JOptionPane.ERROR_MESSAGE);
 					courses = new Course[0];
 				}
 				
 				// Fit into the classes
+				((CourseTreeModel) treeSectionTree.getModel()).setCourses(courses);
 				
 			}
 		});
@@ -380,10 +398,42 @@ public class SSOLGUI {
 		panelSectionDirectory.add(scrollPaneSectionTree,
 				gbc_scrollPaneSectionTree);
 
-		JTree treeSectionTree = new JTree();
-		scrollPaneSectionTree.setViewportView(treeSectionTree);
+		treeSectionTree = new JTree(new CourseTreeModel());
+		treeSectionTree.setRootVisible(false);
+		treeSectionTree.setToggleClickCount(0); // disable expand; will listen manually
+		MouseListener treeMouseListener = new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+		         int selRow = treeSectionTree.getRowForLocation(e.getX(), e.getY());
+		         TreePath selPath = treeSectionTree.getPathForLocation(e.getX(), e.getY());
+		         if(selRow != -1) {
+		             if(e.getClickCount() == 1) {
+		            	 if (treeSectionTree.isExpanded(selPath))
+		            		 treeSectionTree.collapsePath(selPath);
+		            	 else
+		            		 treeSectionTree.expandPath(selPath);
+		             }
+		             else if(e.getClickCount() == 2) {
+		            	 CourseText toShow = (CourseText) selPath.getLastPathComponent();
+		            	 CourseDisplay display = new CourseDisplay(frame, toShow);
+		             }
+		         }
+		     }
 
+		};
+		treeSectionTree.addMouseListener(treeMouseListener);
+		scrollPaneSectionTree.setViewportView(treeSectionTree);
+		
 		buttonAddSection = new JButton("+");
+		buttonAddSection.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TreePath[] selects = treeSectionTree.getSelectionPaths();
+				for (TreePath select:selects)
+				{
+					if (select.getLastPathComponent() instanceof Section)
+						((SectionListModel) listSectionsToAdd.getModel()).add((Section) select.getLastPathComponent());
+				}
+			}
+		});
 		GridBagConstraints gbc_buttonAddSection = new GridBagConstraints();
 		gbc_buttonAddSection.fill = GridBagConstraints.BOTH;
 		gbc_buttonAddSection.insets = new Insets(0, 0, 5, 0);
@@ -551,20 +601,9 @@ public class SSOLGUI {
 		listExistingSections.setCellRenderer(new SectionRenderer());
 	}
 
-	public ArrayList<Integer> getCourseIDs() {
-		System.out.println("getCourseIDs started");
-		// ArrayList<Integer> courseIDs = new ArrayList<Integer>();
-		// for (Section section : sectionsToAddList) {
-		// System.out.println("getCourseIDs: " + section.getCallNumber() +
-		// " added");
-		// courseIDs.add(section.getCallNumber());
-		// }
-		// System.out.println("getCourseIDs finished");
-		//
-		ArrayList<Integer> temp = new ArrayList<Integer>();
-		temp.add(52125);
-		temp.add(12345);
-		return temp;
+	public ArrayList<Section> getCourses() {
+		return sectionsToAddModel.getElements();
+
 	}
 
 	private class StartStopListener implements ActionListener {
@@ -581,12 +620,16 @@ public class SSOLGUI {
 				ssolWorker.execute();
 				btnStart.setEnabled(false);
 				btnStop.setEnabled(true);
+				buttonAddSection.setEnabled(false);
+				buttonRemoveSection.setEnabled(false);
 
 			} else if (arg0.getSource() == btnStop) {
 				System.out.println("StartStopListener: canceling ssolWorker");
 				ssolWorker.cancel(true);
 				btnStart.setEnabled(true);
 				btnStop.setEnabled(false);
+				buttonAddSection.setEnabled(true);
+				buttonRemoveSection.setEnabled(true);
 			}
 
 		}
@@ -597,7 +640,7 @@ public class SSOLGUI {
 		@Override
 		protected Void doInBackground() throws Exception {
 			System.out.println("RunSSOLWorker started");
-			ArrayList<Integer> courseIDs = SSOLGUI.this.getCourseIDs();
+			ArrayList<Section> courseIDs = SSOLGUI.this.getCourses();
 			System.out.println("RunSSOLWorker: courseIDs fetched with size "
 					+ courseIDs.size());
 			while (true) {
@@ -785,6 +828,15 @@ public class SSOLGUI {
 		}
 		
 		/**
+		 * Get all elements in the list
+		 * @return an array list of all elements in the list.
+		 */
+		public ArrayList<Section> getElements()
+		{
+			return (ArrayList<Section>) sections.clone();
+		}
+		
+		/**
 		 * Remove a section from the list
 		 * @param section Section to be removed
 		 */
@@ -860,11 +912,117 @@ public class SSOLGUI {
 				setForeground(list.getForeground());
 			}
 			setText("<html><body><p>" +
-					value.toString() +
+					value.getCourseNumber().substring(0, 4) + " " +
+					value.getCourseNumber().substring(4, 9) + " sec " +
+					value.getCourseNumber().substring(9) +
 					"<br>" + value.getTitle() +
 					"</p></body></html>"
 					);
 			return this;
+		}
+		
+	}
+
+	private class CourseTreeModel implements TreeModel {
+		
+		private Course[] courses;
+	    private Vector<TreeModelListener> treeModelListeners =
+	        new Vector<TreeModelListener>();
+	    
+		public CourseTreeModel()
+		{
+			courses = new Course[0];
+		}
+		
+		public void setCourses(Course[] courses)
+		{
+			if (courses == null)
+				System.out.println("Wrong");
+			Course[] oldCourses = this.courses;
+			this.courses = courses;
+			fireTreeStructureChanged(oldCourses);
+		}
+		
+		@Override
+		public Object getRoot() {
+			return courses;
+		}
+
+		@Override
+		public Object getChild(Object parent, int index) {
+			if (parent instanceof Course)
+			{
+				Section[] sections = ((Course) parent).getSections();
+				return sections[index];
+			} else { // Must be array of Courses
+				Course[] courses = (Course[]) parent;
+				return courses[index];
+			}
+		}
+
+		@Override
+		public int getChildCount(Object parent) {
+			if (parent instanceof Section)
+				return 0;
+			else if (parent instanceof Course)
+				return ((Course) parent).getSections().length;
+			else
+				return ((Course[]) parent).length;
+		}
+
+		@Override
+		public boolean isLeaf(Object node) {
+			if (node instanceof Section)
+				return true;
+			return false;
+		}
+
+		/**
+		 * Not used. Do nothing.
+		 */
+		@Override
+		public void valueForPathChanged(TreePath path, Object newValue) {
+		}
+
+		@Override
+		public int getIndexOfChild(Object parent, Object child) {
+			if (parent instanceof Course[])
+			{
+				for (int i = 0; i < ((Course[]) parent).length; i++)
+					if ((Course)child == ((Course[]) parent)[i])
+						return i;
+				return -1;
+			}
+			else
+			{
+				Section[] list = ((Course) parent).getSections();
+				for (int i = 0; i<list.length; i++)
+					if (list[i] == (Section) child)
+						return i;
+				return -1;
+			}
+				
+			
+		}
+
+	    protected void fireTreeStructureChanged(Course[] oldRoot) {
+	        int len = treeModelListeners.size();
+	        TreeModelEvent e = new TreeModelEvent(this, 
+	                                              new Object[] {oldRoot});
+	        for (TreeModelListener tml : treeModelListeners) {
+	            tml.treeStructureChanged(e);
+	        }
+	    }
+		
+		@Override
+		public void addTreeModelListener(TreeModelListener l) {
+			treeModelListeners.addElement(l);
+		}
+
+		@Override
+		public void removeTreeModelListener(TreeModelListener l) {
+			treeModelListeners.removeElement(l);
+
 		}
 		
 	}

@@ -153,12 +153,12 @@ public class SSOLController {
 	/**
 	 * Used by a GUI SwingWorker to run SSOL
 	 * 
-	 * @param courseIDs
-	 *            the IDs of the course the user selected
+	 * @param sections
+	 *            the section the user selected
 	 * @return results the results of size exactly the same as courseIDs. It
 	 *         shows the result for each of those courseIDs.
 	 */
-	public ArrayList<Integer> runSSOL(ArrayList<Integer> courseIDs) {
+	public ArrayList<Integer> runSSOL(ArrayList<Section> sections) {
 		ArrayList<Integer> results = new ArrayList<Integer>();
 		System.out.println("runSSOL: calling new SSOL");
 		ssol = new SSOL(uni, password, semesterChoice);
@@ -167,8 +167,8 @@ public class SSOLController {
 		ssol.goToRegistration();
 		ssol.chooseSemester(semesterChoice);
 		ssol.visaAgreement();
-		for (int courseID : courseIDs) {
-			int result = ssol.searchAndRegister(courseID);
+		for (Section section : sections) {
+			int result = ssol.searchAndRegister(section.getCallNumber());
 			results.add(result);
 		}
 		System.out.println("runSSOL: returning results");
