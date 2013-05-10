@@ -1,7 +1,0 @@
-[0505/181706:INFO:chromedriver_server.cc(76)] Handling request: /status 
-[0505/181706:INFO:chromedriver_server.cc(81)] Done handling request: 200 {"sessionId":"","status":0,"value":{"build":{"version":"alpha"},"os":{"arch":"x86_64","name":"Mac OS X","version":"10.8.3"}}}
-[0505/181706:INFO:chromedriver_server.cc(76)] Handling request: /session {"desiredCapabilities":{"platform":"ANY","browserName":"chrome","chromeOptions":{"args":[],"extensions":[]},"version":"","chrome.switches":[]}}
-[0505/181706:INFO:chrome_launcher.cc(74)] Using chrome from /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
-[0505/181707:INFO:chromedriver_server.cc(81)] Done handling request: 303 
-[0505/181707:INFO:chromedriver_server.cc(76)] Handling request: /session/6b0d4a7d818c1962474c103f095d3f2a 
-[0505/181707:INFO:chromedriver_server.cc(81)] Done handling request: 200 {"sessionId":"6b0d4a7d818c1962474c103f095d3f2a","status":0,"value":{"acceptSslCerts":true,"applicationCacheEnabled":false,"browserConnectionEnabled":false,"browserName":"chrome","cssSelectorsEnabled":true,"databaseEnabled":true,"driverVersion":"0.8","handlesAlerts":true,"javascriptEnabled":true,"locationContextEnabled":true,"nativeEvents":true,"platform":"Mac OS X","rotatable":false,"takesScreenshot":true,"version":"27.0.1453.73","webStorageEnabled":true}}
