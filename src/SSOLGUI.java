@@ -87,7 +87,10 @@ public class SSOLGUI {
 	private ArrayList<Section> sectionsToAddList;
 	private JComboBox comboBoxDepartment;
 	private JTree treeSectionTree;
+	
 	private HashMap<Section, Integer> registrationStatus;
+	
+	private Culpa culpaInfo;
 	
 	private CourseFetcher courseFetcher;
 	
@@ -117,7 +120,9 @@ public class SSOLGUI {
 		
 		registrationStatus = new HashMap<Section, Integer>();
 		
+		SwingWorker culpaSwingWorker = new CulpaSwingWorker();
 		SwingWorker departmentSwingWorker = new DepartmentSwingWorker();
+		culpaSwingWorker.execute();
 		departmentSwingWorker.execute();
 		initialize();
 		ssolController = new SSOLController();
@@ -394,7 +399,7 @@ public class SSOLGUI {
 		             }
 		             else if(e.getClickCount() == 2) {
 		            	 CourseText toShow = (CourseText) selPath.getLastPathComponent();
-		            	 CourseDisplay display = new CourseDisplay(frame, toShow);
+		            	 CourseDisplay display = new CourseDisplay(frame, culpaInfo, toShow);
 		             }
 		         }
 		     }
@@ -732,6 +737,15 @@ public class SSOLGUI {
 
 	}
 	
+	private class CulpaSwingWorker extends SwingWorker<Void, Void>
+	{
+		@Override
+		protected Void doInBackground() throws Exception {
+			culpaInfo = new Culpa();
+			return null;
+		}
+	}
+	
 	private class DepartmentSwingWorker extends SwingWorker<ArrayList<String>, Void> {
 
 		@Override
@@ -909,7 +923,7 @@ public class SSOLGUI {
 	        }
 	        else return;
 	        CourseDisplay display = new CourseDisplay(
-	        		frame, (Section) list.getModel().getElementAt(index));
+	        		frame, culpaInfo, (Section) list.getModel().getElementAt(index));
 	    }
 	}
 
