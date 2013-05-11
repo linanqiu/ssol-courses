@@ -1103,7 +1103,7 @@ public class SSOLGUI {
 				index = list.locationToIndex(evt.getPoint());
 			} else
 				return;
-			CourseDisplay display = new CourseDisplay(frame, culpaInfo (Section) list
+			CourseDisplay display = new CourseDisplay(frame, culpaInfo, (Section) list
 					.getModel().getElementAt(index));
 		}
 	}
