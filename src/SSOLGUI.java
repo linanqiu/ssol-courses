@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
@@ -86,7 +87,7 @@ public class SSOLGUI {
 	private ArrayList<Section> sectionsToAddList;
 	private JComboBox comboBoxDepartment;
 	private JTree treeSectionTree;
-	private ArrayList<Section> successful, pending, failed;
+	private HashMap<Section, Integer> registrationStatus;
 	
 	private CourseFetcher courseFetcher;
 	
@@ -113,11 +114,6 @@ public class SSOLGUI {
 		// Add a courseFetcher
 		courseFetcher = new CourseFetcher();
 		sectionsToAddModel = new SectionListModel();
-		
-		//Create color lists
-		successful = new ArrayList<Section>();
-		pending = new ArrayList<Section>();
-		failed = new ArrayList<Section>();
 		
 		SwingWorker departmentSwingWorker = new DepartmentSwingWorker();
 		departmentSwingWorker.execute();
@@ -624,6 +620,7 @@ public class SSOLGUI {
 						.println("StartStopListener: calling new RunSSOLSwingWorker");
 				ssolWorker = new RunSSOLSwingWorker();
 				System.out.println("StartStopListener: executing ssolWorker");
+				registrationStatus = new HashMap<Section, Integer>();
 				ssolWorker.execute();
 				btnStart.setEnabled(false);
 				btnStop.setEnabled(true);
@@ -651,27 +648,25 @@ public class SSOLGUI {
 			System.out.println("RunSSOLWorker: courseIDs fetched with size "
 					+ courseIDs.size());
 			while (true) {
-				successful.clear(); pending.clear(); failed.clear(); //Update colors
 				ArrayList<Integer> results = ssolController.runSSOL(courseIDs);
 				for (int i = results.size() - 1; i >= 0; i--) {
 
+					registrationStatus.put(courseIDs.get(i), results.get(i));
 					if (results.get(i) == SSOL.REGISTRATION_SUCCESSFUL) {
-						successful.add(courseIDs.get(i));
 						courseIDs.remove(i);
 						System.out.println("RunSSOLWorker: Result DONE");
 					} else if (results.get(i) == SSOL.SECTION_NOT_FOUND) {
-						failed.add(courseIDs.get(i));
 						courseIDs.remove(i);
 						System.out.println("RunSSOLWorker: Result NOT FOUND");
 					} else if (results.get(i) == SSOL.REGISTRATION_UNSUCCESSFUL) {
-						pending.add(courseIDs.get(i));
 						System.out.println("RunSSOLWorker: Result UNSUCCESSFUL");
 					}
+					publish(); // Update the color
+					
 				}
 				System.out
 						.println("RunSSOLWorker: One round of fetching complete");
 				
-				publish();
 				if (courseIDs.isEmpty())
 					return null;
 				System.out.println("RunSSOLWorker: Sleeping");
@@ -679,6 +674,9 @@ public class SSOLGUI {
 			}
 		}
 		
+		/**
+		 * Repaint the list. Use process() so this is thread safe.
+		 */
 		protected void process(List<Void> chunks) 
 		{
 			listSectionsToAdd.repaint();
@@ -915,12 +913,17 @@ public class SSOLGUI {
 			} else {
 				setBackground(list.getBackground());
 				setForeground(list.getForeground());
-				if (successful.contains(value))
-					setBackground(Color.GREEN);
-				else if (failed.contains(value))
-					setBackground(Color.RED);
-				else if (pending.contains(value))
-					setBackground(Color.YELLOW);
+				if (registrationStatus.containsKey(value))
+					switch (registrationStatus.get(value)) {
+					case SSOL.REGISTRATION_SUCCESSFUL:
+						setBackground(Color.GREEN);
+						break;
+					case SSOL.REGISTRATION_UNSUCCESSFUL:
+						setBackground(Color.YELLOW);
+						break;
+					case SSOL.SECTION_NOT_FOUND:
+						setBackground(Color.RED);
+					}
 			}
 			setText("<html><body><p>" +
 					value.getCourseNumber().substring(0, 4) + " " +
