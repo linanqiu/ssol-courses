@@ -167,6 +167,13 @@ public class LoginDialog extends JDialog {
 				} catch (NoSuchElementException e) {
 					System.out
 							.println("LoginDialog: Wrong username / password");
+					lblWrongUniOr.setText("Wrong UNI or Password. Try Again.");
+					lblWrongUniOr.repaint();
+					lblWrongUniOr.setVisible(true);
+				} catch (IllegalStateException e) {
+					System.out.println("LoginDialog: Blocked");
+					lblWrongUniOr.setText("You're blocked. Try later.");
+					lblWrongUniOr.repaint();
 					lblWrongUniOr.setVisible(true);
 				}
 

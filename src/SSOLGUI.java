@@ -31,7 +31,6 @@ import javax.swing.JTextArea;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingWorker;
 
-
 import java.awt.Color;
 import java.awt.SystemColor;
 import java.io.File;
@@ -88,9 +87,9 @@ public class SSOLGUI {
 	private JComboBox comboBoxDepartment;
 	private JTree treeSectionTree;
 	private HashMap<Section, Integer> registrationStatus;
-	
+
 	private CourseFetcher courseFetcher;
-	
+
 	/**
 	 * Launch the application.
 	 */
@@ -114,9 +113,9 @@ public class SSOLGUI {
 		// Add a courseFetcher
 		courseFetcher = new CourseFetcher();
 		sectionsToAddModel = new SectionListModel();
-		
+
 		registrationStatus = new HashMap<Section, Integer>();
-		
+
 		SwingWorker departmentSwingWorker = new DepartmentSwingWorker();
 		departmentSwingWorker.execute();
 		initialize();
@@ -357,6 +356,11 @@ public class SSOLGUI {
 		btnSearch = new JButton("Search");
 		btnSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				// disable search button
+				btnSearch.setEnabled(false);
+				btnSearch.setText("Searching");
+
+				// call new swingworker
 				SwingWorker searchSwingWorker = new SearchSwingWorker();
 				searchSwingWorker.execute();
 			}
@@ -380,38 +384,42 @@ public class SSOLGUI {
 
 		treeSectionTree = new JTree(new CourseTreeModel());
 		treeSectionTree.setRootVisible(false);
-		treeSectionTree.setToggleClickCount(0); // disable expand; will listen manually
+		treeSectionTree.setToggleClickCount(0); // disable expand; will listen
+												// manually
 		MouseListener treeMouseListener = new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
-		         int selRow = treeSectionTree.getRowForLocation(e.getX(), e.getY());
-		         TreePath selPath = treeSectionTree.getPathForLocation(e.getX(), e.getY());
-		         if(selRow != -1) {
-		             if(e.getClickCount() == 1) {
-		            	 if (treeSectionTree.isExpanded(selPath))
-		            		 treeSectionTree.collapsePath(selPath);
-		            	 else
-		            		 treeSectionTree.expandPath(selPath);
-		             }
-		             else if(e.getClickCount() == 2) {
-		            	 CourseText toShow = (CourseText) selPath.getLastPathComponent();
-		            	 CourseDisplay display = new CourseDisplay(frame, toShow);
-		             }
-		         }
-		     }
+				int selRow = treeSectionTree.getRowForLocation(e.getX(),
+						e.getY());
+				TreePath selPath = treeSectionTree.getPathForLocation(e.getX(),
+						e.getY());
+				if (selRow != -1) {
+					if (e.getClickCount() == 1) {
+						if (treeSectionTree.isExpanded(selPath))
+							treeSectionTree.collapsePath(selPath);
+						else
+							treeSectionTree.expandPath(selPath);
+					} else if (e.getClickCount() == 2) {
+						CourseText toShow = (CourseText) selPath
+								.getLastPathComponent();
+						CourseDisplay display = new CourseDisplay(frame, toShow);
+					}
+				}
+			}
 
 		};
 		treeSectionTree.addMouseListener(treeMouseListener);
 		scrollPaneSectionTree.setViewportView(treeSectionTree);
-		
+
 		buttonAddSection = new JButton("+");
 		buttonAddSection.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				TreePath[] selects = treeSectionTree.getSelectionPaths();
-				if (selects == null) return;
-				for (TreePath select:selects)
-				{
+				if (selects == null)
+					return;
+				for (TreePath select : selects) {
 					if (select.getLastPathComponent() instanceof Section)
-						((SectionListModel) listSectionsToAdd.getModel()).add((Section) select.getLastPathComponent());
+						((SectionListModel) listSectionsToAdd.getModel())
+								.add((Section) select.getLastPathComponent());
 				}
 			}
 		});
@@ -426,10 +434,11 @@ public class SSOLGUI {
 		buttonRemoveSection.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Object[] selected = listSectionsToAdd.getSelectedValues();
-				SectionListModel currentModel = (SectionListModel) listSectionsToAdd.getModel();
-				for (Object i:selected)
-					currentModel.remove((Section)i);
-					
+				SectionListModel currentModel = (SectionListModel) listSectionsToAdd
+						.getModel();
+				for (Object i : selected)
+					currentModel.remove((Section) i);
+
 			}
 		});
 		GridBagConstraints gbc_buttonRemoveSection = new GridBagConstraints();
@@ -574,9 +583,11 @@ public class SSOLGUI {
 
 	private void buildCurrentSections() {
 		System.out.println("buildCurrentSections started");
-		ArrayList<Section> currentSections = ssolController.getCurrentSections();
+		ArrayList<Section> currentSections = ssolController
+				.getCurrentSections();
 		// Set Data model, mouse listener and renderer.
-		SectionListModel currentSectionsModel = new SectionListModel(currentSections);
+		SectionListModel currentSectionsModel = new SectionListModel(
+				currentSections);
 		listExistingSections.addMouseListener(new SectionMouseListener());
 		listExistingSections.setModel(currentSectionsModel);
 		listExistingSections.setCellRenderer(new SectionRenderer());
@@ -637,31 +648,32 @@ public class SSOLGUI {
 						courseIDs.remove(i);
 						System.out.println("RunSSOLWorker: Result NOT FOUND");
 					} else if (results.get(i) == SSOL.REGISTRATION_UNSUCCESSFUL) {
-						System.out.println("RunSSOLWorker: Result UNSUCCESSFUL");
+						System.out
+								.println("RunSSOLWorker: Result UNSUCCESSFUL");
 					}
-					
+
 				}
+
 				publish(); // Update the color
+
 				System.out
 						.println("RunSSOLWorker: One round of fetching complete");
-				
+
 				if (courseIDs.isEmpty())
 					return null;
 				System.out.println("RunSSOLWorker: Sleeping");
 				Thread.sleep(50000);
 			}
 		}
-		
+
 		/**
 		 * Repaint the list. Use process() so this is thread safe.
 		 */
-		protected void process(List<Void> chunks) 
-		{
+		protected void process(List<Void> chunks) {
 			listSectionsToAdd.repaint();
 		}
-		
-		protected void done()
-		{
+
+		protected void done() {
 			System.out.println("RunSSOL Worker: ssolWorker Done");
 			btnStart.setEnabled(true);
 			btnStop.setEnabled(false);
@@ -683,12 +695,9 @@ public class SSOLGUI {
 			if (konamiCheck(arg0)) {
 				SSOLGUI.this.ssolController.setSuperUser();
 				panelCredits.setBackground(Color.gray);
-				lblHugeShoutoutsTo
-						.setText("SWAP");
-				lblLinanQiu
-						.setText("SWAP");
-				lblXingzhouHe
-						.setText("SWAP");
+				lblHugeShoutoutsTo.setText("SWAP");
+				lblLinanQiu.setText("SWAP");
+				lblXingzhouHe.setText("SWAP");
 
 				System.out.println("SSOLGUI: konami code successful");
 			}
@@ -731,8 +740,9 @@ public class SSOLGUI {
 		}
 
 	}
-	
-	private class DepartmentSwingWorker extends SwingWorker<ArrayList<String>, Void> {
+
+	private class DepartmentSwingWorker extends
+			SwingWorker<ArrayList<String>, Void> {
 
 		@Override
 		protected ArrayList<String> doInBackground() throws Exception {
@@ -740,11 +750,11 @@ public class SSOLGUI {
 			ArrayList<String> departments = departmentParser.getDepartments();
 			return departments;
 		}
-		
+
 		protected void done() {
 			try {
 				ArrayList<String> departments = get();
-				for (String department:departments) {
+				for (String department : departments) {
 					comboBoxDepartment.addItem(department);
 				}
 			} catch (InterruptedException e) {
@@ -752,15 +762,18 @@ public class SSOLGUI {
 			} catch (ExecutionException e) {
 				e.printStackTrace();
 			}
-			
+
 		}
-		
+
 	}
 
 	private class BlockCheckSwingWorker extends SwingWorker<Void, Void> {
 
+		private boolean blocked;
+
 		@Override
 		protected Void doInBackground() throws Exception {
+			blocked = false;
 			while (true) {
 				System.out.println("BlockCheckSwingWorker started");
 				WebDriver driver = new HtmlUnitDriver(true);
@@ -782,44 +795,57 @@ public class SSOLGUI {
 				u_pwField.submit();
 
 				if (driver.getPageSource().toLowerCase().indexOf("ip blocked") > -1) {
-					System.out.println("BlockCheckSwingWorker: blocked");
-					SSOLGUI.this.lblBlockStatusIndicator.setText("Blocked");
-					SSOLGUI.this.lblBlockStatusIndicator
-							.setForeground(Color.RED);
+					blocked = true;
+					publish();
 					Thread.sleep(30000);
-
 				} else {
-					System.out.println("BlockCheckSwingWorker: not blocked");
-					SSOLGUI.this.lblBlockStatusIndicator.setText("Not Blocked");
-					SSOLGUI.this.lblBlockStatusIndicator
-							.setForeground(Color.GREEN);
-					Thread.sleep(60000);
+					blocked = false;
+					publish();
+					Thread.sleep(30000);
 				}
+
+			}
+		}
+
+		protected void process(List<Void> chunks) {
+			if (blocked) {
+				System.out.println("BlockCheckSwingWorker: blocked");
+				SSOLGUI.this.lblBlockStatusIndicator.setText("Blocked");
+				SSOLGUI.this.lblBlockStatusIndicator.setBackground(Color.RED);
+				SSOLGUI.this.lblBlockStatusIndicator.setOpaque(true);
+				SSOLGUI.this.lblBlockStatusIndicator.repaint();
+
+			} else {
+				System.out.println("BlockCheckSwingWorker: not blocked");
+				SSOLGUI.this.lblBlockStatusIndicator.setText("Not Blocked");
+				SSOLGUI.this.lblBlockStatusIndicator.setBackground(Color.GREEN);
+				SSOLGUI.this.lblBlockStatusIndicator.setOpaque(true);
+				SSOLGUI.this.lblBlockStatusIndicator.repaint();
 			}
 		}
 	}
-	
-	private class SectionListModel extends AbstractListModel
-	{
+
+	private class SectionListModel extends AbstractListModel {
 		private ArrayList<Section> sections;
-		
-		public SectionListModel()
-		{
+
+		public SectionListModel() {
 			sections = new ArrayList<Section>();
 		}
-		
+
 		/**
 		 * Get all elements in the list
+		 * 
 		 * @return an array list of all elements in the list.
 		 */
-		public ArrayList<Section> getElements()
-		{
+		public ArrayList<Section> getElements() {
 			return (ArrayList<Section>) sections.clone();
 		}
-		
+
 		/**
 		 * Remove a section from the list
-		 * @param section Section to be removed
+		 * 
+		 * @param section
+		 *            Section to be removed
 		 */
 		public void remove(Section section) {
 			int id = sections.indexOf(section);
@@ -828,27 +854,32 @@ public class SSOLGUI {
 			sections.remove(id);
 			fireIntervalRemoved(this, id, id);
 		}
-		
+
 		/**
 		 * Add a section to the list
-		 * @param section Section to be added
+		 * 
+		 * @param section
+		 *            Section to be added
 		 */
 		public void add(Section section) {
-			if (!sections.contains(section))
-			{
+			if (!sections.contains(section)) {
 				sections.add(section);
-				fireIntervalAdded(this, sections.size()-1, sections.size()-1);
+				fireIntervalAdded(this, sections.size() - 1,
+						sections.size() - 1);
 			}
 		}
 
 		@SuppressWarnings("unchecked")
-		public SectionListModel(ArrayList<Section> sections)
-		{
+		public SectionListModel(ArrayList<Section> sections) {
 			if (sections == null)
 				throw new IllegalArgumentException();
-			this.sections = (ArrayList<Section>) sections.clone(); // Prevent Problems with changing sections
+			this.sections = (ArrayList<Section>) sections.clone(); // Prevent
+																	// Problems
+																	// with
+																	// changing
+																	// sections
 		}
-		
+
 		@Override
 		public int getSize() {
 			return sections.size();
@@ -859,15 +890,12 @@ public class SSOLGUI {
 			return sections.get(index);
 		}
 	}
-	
-	private class SearchSwingWorker extends SwingWorker<Void, Void> {
+
+	private class SearchSwingWorker extends SwingWorker<Course[], Void> {
 
 		@Override
-		protected Void doInBackground() throws Exception {
-			// disable search button
-			btnSearch.setEnabled(false);
-			btnSearch.setText("Searching");
-			
+		protected Course[] doInBackground() throws Exception {
+
 			// Fetch the courses
 			Course[] courses = null;
 			try {
@@ -876,13 +904,12 @@ public class SSOLGUI {
 					dept = null;
 				else
 					dept = dept.substring(0, 4); // Parse code
-				
-				courses = courseFetcher.getCoursesByKeyword(dept, 
-						txtSearch.getText(), 
-						ssolController.getSemesterChoice());
+
+				courses = courseFetcher
+						.getCoursesByKeyword(dept, txtSearch.getText(),
+								ssolController.getSemesterChoice());
 				if (courses.length == 0)
-					JOptionPane.showMessageDialog(null,
-							"No courses found",
+					JOptionPane.showMessageDialog(null, "No courses found",
 							"Message", JOptionPane.INFORMATION_MESSAGE);
 			} catch (IOException e1) {
 				JOptionPane.showMessageDialog(null,
@@ -890,27 +917,39 @@ public class SSOLGUI {
 						"Error", JOptionPane.ERROR_MESSAGE);
 				courses = new Course[0];
 			}
-			
+
+			return courses;
+		}
+
+		protected void done() {
 			// Fit into the classes
-			((CourseTreeModel) treeSectionTree.getModel()).setCourses(courses);
-			
+			try {
+				((CourseTreeModel) treeSectionTree.getModel())
+						.setCourses(get());
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 			btnSearch.setEnabled(true);
 			btnSearch.setText("Search");
-			return null;		
 		}
 	}
-	
+
 	private class SectionMouseListener extends MouseAdapter {
 		public void mouseClicked(MouseEvent evt) {
-	        JList list = (JList)evt.getSource();
-	        int index = 0;
-	        if (evt.getClickCount() >= 2) {
-	            index = list.locationToIndex(evt.getPoint());
-	        }
-	        else return;
-	        CourseDisplay display = new CourseDisplay(
-	        		frame, (Section) list.getModel().getElementAt(index));
-	    }
+			JList list = (JList) evt.getSource();
+			int index = 0;
+			if (evt.getClickCount() >= 2) {
+				index = list.locationToIndex(evt.getPoint());
+			} else
+				return;
+			CourseDisplay display = new CourseDisplay(frame, (Section) list
+					.getModel().getElementAt(index));
+		}
 	}
 
 	private class SectionRenderer extends JLabel implements ListCellRenderer {
@@ -919,12 +958,11 @@ public class SSOLGUI {
 			setOpaque(true);
 			setHorizontalAlignment(LEFT);
 			setVerticalAlignment(CENTER);
-	    }
-		
+		}
+
 		@Override
-		public Component getListCellRendererComponent(
-				JList list, Object value, int index,
-				boolean isSelected, boolean cellHasFocus) {
+		public Component getListCellRendererComponent(JList list, Object value,
+				int index, boolean isSelected, boolean cellHasFocus) {
 			if (isSelected) {
 				setBackground(list.getSelectionBackground());
 				setForeground(list.getSelectionForeground());
@@ -944,38 +982,33 @@ public class SSOLGUI {
 					}
 			}
 			Section section = (Section) value;
-			setText("<html><body><p>" +
-					section.getCourseNumber().substring(0, 4) + " " +
-					section.getCourseNumber().substring(4, 9) + " sec " +
-					section.getCourseNumber().substring(9) +
-					"<br>" + section.getTitle() +
-					"</p></body></html>"
-					);
+			setText("<html><body><p>"
+					+ section.getCourseNumber().substring(0, 4) + " "
+					+ section.getCourseNumber().substring(4, 9) + " sec "
+					+ section.getCourseNumber().substring(9) + "<br>"
+					+ section.getTitle() + "</p></body></html>");
 			return this;
 		}
-		
+
 	}
 
 	private class CourseTreeModel implements TreeModel {
-		
+
 		private Course[] courses;
-	    private Vector<TreeModelListener> treeModelListeners =
-	        new Vector<TreeModelListener>();
-	    
-		public CourseTreeModel()
-		{
+		private Vector<TreeModelListener> treeModelListeners = new Vector<TreeModelListener>();
+
+		public CourseTreeModel() {
 			courses = new Course[0];
 		}
-		
-		public void setCourses(Course[] courses)
-		{
+
+		public void setCourses(Course[] courses) {
 			if (courses == null)
 				System.out.println("Wrong");
 			Course[] oldCourses = this.courses;
 			this.courses = courses;
 			fireTreeStructureChanged(oldCourses);
 		}
-		
+
 		@Override
 		public Object getRoot() {
 			return courses;
@@ -983,8 +1016,7 @@ public class SSOLGUI {
 
 		@Override
 		public Object getChild(Object parent, int index) {
-			if (parent instanceof Course)
-			{
+			if (parent instanceof Course) {
 				Section[] sections = ((Course) parent).getSections();
 				return sections[index];
 			} else { // Must be array of Courses
@@ -1019,34 +1051,30 @@ public class SSOLGUI {
 
 		@Override
 		public int getIndexOfChild(Object parent, Object child) {
-			if (parent instanceof Course[])
-			{
+			if (parent instanceof Course[]) {
 				for (int i = 0; i < ((Course[]) parent).length; i++)
-					if ((Course)child == ((Course[]) parent)[i])
+					if ((Course) child == ((Course[]) parent)[i])
 						return i;
 				return -1;
-			}
-			else
-			{
+			} else {
 				Section[] list = ((Course) parent).getSections();
-				for (int i = 0; i<list.length; i++)
+				for (int i = 0; i < list.length; i++)
 					if (list[i] == (Section) child)
 						return i;
 				return -1;
 			}
-				
-			
+
 		}
 
-	    protected void fireTreeStructureChanged(Course[] oldRoot) {
-	        int len = treeModelListeners.size();
-	        TreeModelEvent e = new TreeModelEvent(this, 
-	                                              new Object[] {oldRoot});
-	        for (TreeModelListener tml : treeModelListeners) {
-	            tml.treeStructureChanged(e);
-	        }
-	    }
-		
+		protected void fireTreeStructureChanged(Course[] oldRoot) {
+			int len = treeModelListeners.size();
+			TreeModelEvent e = new TreeModelEvent(this,
+					new Object[] { oldRoot });
+			for (TreeModelListener tml : treeModelListeners) {
+				tml.treeStructureChanged(e);
+			}
+		}
+
 		@Override
 		public void addTreeModelListener(TreeModelListener l) {
 			treeModelListeners.addElement(l);
@@ -1055,8 +1083,7 @@ public class SSOLGUI {
 		@Override
 		public void removeTreeModelListener(TreeModelListener l) {
 			treeModelListeners.removeElement(l);
-
 		}
-		
+
 	}
 }
