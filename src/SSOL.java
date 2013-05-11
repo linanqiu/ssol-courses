@@ -119,7 +119,12 @@ public class SSOL {
 
 		Select semesterSelect = new Select(driver.findElement(By
 				.cssSelector("select[name=\"tran[1]_term_id\"]")));
-		semesterSelect.selectByValue(semesterChoice);
+		try {
+			semesterSelect.selectByValue(semesterChoice);
+		} catch (Exception e) {
+			System.out.println("User doesn't have a schedule. No classes are registered yet.");
+			return currentSections;
+		}
 		WebElement semesterUpdateView = driver.findElement(By
 				.cssSelector("input[value=\"Update View\"]"));
 		semesterUpdateView.click();
@@ -403,11 +408,15 @@ public class SSOL {
 		} else {
 
 			// registers for the class
+			try {
 			registerElement.get(0).click();
 			WebElement addClassElement = driver.findElement(By
 					.name("tran[1]_act"));
 			addClassElement.click();
-
+			} catch (Exception e) {
+				System.out.println("searchAndRegister: page not correct. perhaps system is closed");
+				return REGISTRATION_UNSUCCESSFUL;
+			}
 			System.out.println("searchAndRegister: registration request sent");
 
 			// checks if registration is successful

@@ -160,14 +160,14 @@ public class SSOLController {
 	 */
 	public ArrayList<Integer> runSSOL(ArrayList<Section> sections) {
 		ArrayList<Integer> results = new ArrayList<Integer>();
-		System.out.println("runSSOL: calling new SSOL");
-		ssol = new SSOL(uni, password, semesterChoice);
-		System.out.println("runSSOL: logging in");
-		ssol.login();
-		ssol.goToRegistration();
-		ssol.chooseSemester(semesterChoice);
-		ssol.visaAgreement();
 		for (Section section : sections) {
+			System.out.println("runSSOL: calling new SSOL");
+			ssol = new SSOL(uni, password, semesterChoice);
+			System.out.println("runSSOL: logging in");
+			ssol.login();
+			ssol.goToRegistration();
+			ssol.chooseSemester(semesterChoice);
+			ssol.visaAgreement();
 			int result = ssol.searchAndRegister(section.getCallNumber());
 			results.add(result);
 		}

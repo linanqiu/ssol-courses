@@ -115,6 +115,8 @@ public class SSOLGUI {
 		courseFetcher = new CourseFetcher();
 		sectionsToAddModel = new SectionListModel();
 		
+		registrationStatus = new HashMap<Section, Integer>();
+		
 		SwingWorker departmentSwingWorker = new DepartmentSwingWorker();
 		departmentSwingWorker.execute();
 		initialize();
@@ -447,10 +449,10 @@ public class SSOLGUI {
 		buttonRemoveSection = new JButton("-");
 		buttonRemoveSection.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				List<Section> selected = listSectionsToAdd.getSelectedValuesList();
+				Object[] selected = listSectionsToAdd.getSelectedValues();
 				SectionListModel currentModel = (SectionListModel) listSectionsToAdd.getModel();
-				for (Section i:selected)
-					currentModel.remove(i);
+				for (Object i:selected)
+					currentModel.remove((Section)i);
 					
 			}
 		});
@@ -620,7 +622,7 @@ public class SSOLGUI {
 						.println("StartStopListener: calling new RunSSOLSwingWorker");
 				ssolWorker = new RunSSOLSwingWorker();
 				System.out.println("StartStopListener: executing ssolWorker");
-				registrationStatus = new HashMap<Section, Integer>();
+				registrationStatus.clear();
 				ssolWorker.execute();
 				btnStart.setEnabled(false);
 				btnStop.setEnabled(true);
@@ -661,9 +663,9 @@ public class SSOLGUI {
 					} else if (results.get(i) == SSOL.REGISTRATION_UNSUCCESSFUL) {
 						System.out.println("RunSSOLWorker: Result UNSUCCESSFUL");
 					}
-					publish(); // Update the color
 					
 				}
+				publish(); // Update the color
 				System.out
 						.println("RunSSOLWorker: One round of fetching complete");
 				
@@ -684,7 +686,7 @@ public class SSOLGUI {
 		
 		protected void done()
 		{
-			System.out.println("RunSSOL WOrker: ssolWorker Done");
+			System.out.println("RunSSOL Worker: ssolWorker Done");
 			btnStart.setEnabled(true);
 			btnStop.setEnabled(false);
 			buttonAddSection.setEnabled(true);
@@ -895,7 +897,7 @@ public class SSOLGUI {
 	    }
 	}
 
-	private class SectionRenderer extends JLabel implements ListCellRenderer<Section> {
+	private class SectionRenderer extends JLabel implements ListCellRenderer {
 
 		public SectionRenderer() {
 			setOpaque(true);
@@ -905,7 +907,7 @@ public class SSOLGUI {
 		
 		@Override
 		public Component getListCellRendererComponent(
-				JList<? extends Section> list, Section value, int index,
+				JList list, Object value, int index,
 				boolean isSelected, boolean cellHasFocus) {
 			if (isSelected) {
 				setBackground(list.getSelectionBackground());
@@ -925,11 +927,12 @@ public class SSOLGUI {
 						setBackground(Color.RED);
 					}
 			}
+			Section section = (Section) value;
 			setText("<html><body><p>" +
-					value.getCourseNumber().substring(0, 4) + " " +
-					value.getCourseNumber().substring(4, 9) + " sec " +
-					value.getCourseNumber().substring(9) +
-					"<br>" + value.getTitle() +
+					section.getCourseNumber().substring(0, 4) + " " +
+					section.getCourseNumber().substring(4, 9) + " sec " +
+					section.getCourseNumber().substring(9) +
+					"<br>" + section.getTitle() +
 					"</p></body></html>"
 					);
 			return this;
