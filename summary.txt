@@ -1,0 +1,33 @@
+Project Name:
+SSOL Courses
+
+Description:
+- Automatically tries to get courses on SSOL
+- Pick courses from the Columbia Bulletin
+- Parses current schedule and adds courses using a GUI
+- Keeps retrying for courses until you get the courses
+- Optimal timing to avoid having IP blocked
+- Wait timer for IP blocking
+
+Technology used:
+Interfaces (Defined a CourseText interface to unify GUI behavior of courses and sections)
+Inheritance (A lot of them are used upon system classes to customize GUI behavior)
+Design Patterns (The program follows the MVC design pattern)
+
+Java Graphics
+Networking
+Multithreading
+Advanced Java (External Library)
+
+Work Breakdown:
+Course.java -- Xingzhou He
+CourseDisplay.java -- Xingzhou He
+CourseFetcher.java -- Xingzhou He
+CourseText.java -- Xingzhou He
+DepartmentParser.java -- Linan Qiu
+LoginDialog.java -- Linan Qiu
+SSOL.java -- Linan Qiu
+SSOLController.java -- Linan Qiu
+SSOLGUI.java -- Linan Qiu (GUI Design), Xingzhou He (Data Integration)
+Section.java -- Xingzhou He
+SemesterChoiceDialog.java -- Linan Qiu
