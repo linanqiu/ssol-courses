@@ -357,32 +357,8 @@ public class SSOLGUI {
 		btnSearch = new JButton("Search");
 		btnSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// Fetch the courses
-				Course[] courses = null;
-				try {
-					String dept = (String) comboBoxDepartment.getSelectedItem();
-					if (dept == "(All)")
-						dept = null;
-					else
-						dept = dept.substring(0, 4); // Parse code
-					
-					courses = courseFetcher.getCoursesByKeyword(dept, 
-							txtSearch.getText(), 
-							ssolController.getSemesterChoice());
-					if (courses.length == 0)
-						JOptionPane.showMessageDialog(null,
-								"No courses found",
-								"Message", JOptionPane.INFORMATION_MESSAGE);
-				} catch (IOException e1) {
-					JOptionPane.showMessageDialog(null,
-							"Search operation failed: no network connection.",
-							"Error", JOptionPane.ERROR_MESSAGE);
-					courses = new Course[0];
-				}
-				
-				// Fit into the classes
-				((CourseTreeModel) treeSectionTree.getModel()).setCourses(courses);
-				
+				SwingWorker searchSwingWorker = new SearchSwingWorker();
+				searchSwingWorker.execute();
 			}
 		});
 		GridBagConstraints gbc_btnSearch = new GridBagConstraints();
@@ -881,6 +857,46 @@ public class SSOLGUI {
 		@Override
 		public Object getElementAt(int index) {
 			return sections.get(index);
+		}
+	}
+	
+	private class SearchSwingWorker extends SwingWorker<Void, Void> {
+
+		@Override
+		protected Void doInBackground() throws Exception {
+			// disable search button
+			btnSearch.setEnabled(false);
+			btnSearch.setText("Searching");
+			
+			// Fetch the courses
+			Course[] courses = null;
+			try {
+				String dept = (String) comboBoxDepartment.getSelectedItem();
+				if (dept == "(All)")
+					dept = null;
+				else
+					dept = dept.substring(0, 4); // Parse code
+				
+				courses = courseFetcher.getCoursesByKeyword(dept, 
+						txtSearch.getText(), 
+						ssolController.getSemesterChoice());
+				if (courses.length == 0)
+					JOptionPane.showMessageDialog(null,
+							"No courses found",
+							"Message", JOptionPane.INFORMATION_MESSAGE);
+			} catch (IOException e1) {
+				JOptionPane.showMessageDialog(null,
+						"Search operation failed: no network connection.",
+						"Error", JOptionPane.ERROR_MESSAGE);
+				courses = new Course[0];
+			}
+			
+			// Fit into the classes
+			((CourseTreeModel) treeSectionTree.getModel()).setCourses(courses);
+			
+			btnSearch.setEnabled(true);
+			btnSearch.setText("Search");
+			return null;		
 		}
 	}
 	
