@@ -90,11 +90,11 @@ public class SSOLGUI {
 	private ArrayList<Section> sectionsToAddList;
 	private JComboBox comboBoxDepartment;
 	private JTree treeSectionTree;
-	
+
 	private HashMap<Section, Integer> registrationStatus;
-	
+
 	private Culpa culpaInfo;
-	
+
 	private CourseFetcher courseFetcher;
 	private JLabel lblAppointment;
 	private JLabel lblAppointmentindicator;
@@ -124,7 +124,7 @@ public class SSOLGUI {
 		sectionsToAddModel = new SectionListModel();
 
 		registrationStatus = new HashMap<Section, Integer>();
-		
+
 		SwingWorker culpaSwingWorker = new CulpaSwingWorker();
 		SwingWorker departmentSwingWorker = new DepartmentSwingWorker();
 		culpaSwingWorker.execute();
@@ -428,7 +428,8 @@ public class SSOLGUI {
 					} else if (e.getClickCount() == 2) {
 						CourseText toShow = (CourseText) selPath
 								.getLastPathComponent();
-						CourseDisplay display = new CourseDisplay(frame, culpaInfo, toShow);
+						CourseDisplay display = new CourseDisplay(frame,
+								culpaInfo, toShow);
 					}
 				}
 			}
@@ -766,17 +767,16 @@ public class SSOLGUI {
 		}
 
 	}
-	
-	private class CulpaSwingWorker extends SwingWorker<Void, Void>
-	{
+
+	private class CulpaSwingWorker extends SwingWorker<Void, Void> {
 		@Override
 		protected Void doInBackground() throws Exception {
 			culpaInfo = new Culpa();
 			return null;
 		}
 	}
-	
-	private class DepartmentSwingWorker extends 
+
+	private class DepartmentSwingWorker extends
 			SwingWorker<ArrayList<String>, Void> {
 		@Override
 		protected ArrayList<String> doInBackground() throws Exception {
@@ -896,15 +896,20 @@ public class SSOLGUI {
 
 						sessionFormSubmit.submit();
 					}
-					
-					if(driver.getPageSource().toLowerCase().indexOf("no registration appointment") > -1) {
-						System.out.println("BlockCheckSwingWorker: appointment unavailable");
+
+					if (driver.getPageSource().toLowerCase()
+							.indexOf("no registration appointment") > -1
+							|| driver.getPageSource().toLowerCase()
+									.indexOf("system not available") > -1) {
+						System.out
+								.println("BlockCheckSwingWorker: appointment unavailable");
 						registrationAppointment = false;
 					} else {
-						System.out.println("BlockCheckSwingWorker: appointment available");
+						System.out
+								.println("BlockCheckSwingWorker: appointment available");
 						registrationAppointment = true;
 					}
-					
+
 					publish();
 
 					Thread.sleep(45000);
@@ -929,15 +934,17 @@ public class SSOLGUI {
 				SSOLGUI.this.lblBlockStatusIndicator.setOpaque(true);
 				SSOLGUI.this.lblBlockStatusIndicator.repaint();
 			}
-			
+
 			if (registrationAppointment) {
-				System.out.println("BlockCheckSwingWorker: appointment available");
+				System.out
+						.println("BlockCheckSwingWorker: appointment available");
 				SSOLGUI.this.lblAppointmentindicator.setText("Available");
 				SSOLGUI.this.lblAppointmentindicator.setBackground(Color.GREEN);
 				SSOLGUI.this.lblAppointmentindicator.setOpaque(true);
 				SSOLGUI.this.lblAppointmentindicator.repaint();
 			} else {
-				System.out.println("BlockCheckSwingWorker: appointment unavailable");
+				System.out
+						.println("BlockCheckSwingWorker: appointment unavailable");
 				SSOLGUI.this.lblAppointmentindicator.setText("Unavailable");
 				SSOLGUI.this.lblAppointmentindicator.setBackground(Color.RED);
 				SSOLGUI.this.lblAppointmentindicator.setOpaque(true);
@@ -1103,8 +1110,8 @@ public class SSOLGUI {
 				index = list.locationToIndex(evt.getPoint());
 			} else
 				return;
-			CourseDisplay display = new CourseDisplay(frame, culpaInfo, (Section) list
-					.getModel().getElementAt(index));
+			CourseDisplay display = new CourseDisplay(frame, culpaInfo,
+					(Section) list.getModel().getElementAt(index));
 		}
 	}
 
