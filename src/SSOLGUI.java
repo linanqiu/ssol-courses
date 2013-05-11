@@ -90,8 +90,11 @@ public class SSOLGUI {
 	private ArrayList<Section> sectionsToAddList;
 	private JComboBox comboBoxDepartment;
 	private JTree treeSectionTree;
+	
 	private HashMap<Section, Integer> registrationStatus;
-
+	
+	private Culpa culpaInfo;
+	
 	private CourseFetcher courseFetcher;
 	private JLabel lblAppointment;
 	private JLabel lblAppointmentindicator;
@@ -121,8 +124,10 @@ public class SSOLGUI {
 		sectionsToAddModel = new SectionListModel();
 
 		registrationStatus = new HashMap<Section, Integer>();
-
+		
+		SwingWorker culpaSwingWorker = new CulpaSwingWorker();
 		SwingWorker departmentSwingWorker = new DepartmentSwingWorker();
+		culpaSwingWorker.execute();
 		departmentSwingWorker.execute();
 		initialize();
 		ssolController = new SSOLController();
@@ -423,11 +428,10 @@ public class SSOLGUI {
 					} else if (e.getClickCount() == 2) {
 						CourseText toShow = (CourseText) selPath
 								.getLastPathComponent();
-						CourseDisplay display = new CourseDisplay(frame, toShow);
+						CourseDisplay display = new CourseDisplay(frame, culpaInfo, toShow);
 					}
 				}
 			}
-
 		};
 		treeSectionTree.addMouseListener(treeMouseListener);
 		scrollPaneSectionTree.setViewportView(treeSectionTree);
@@ -762,10 +766,18 @@ public class SSOLGUI {
 		}
 
 	}
-
-	private class DepartmentSwingWorker extends
+	
+	private class CulpaSwingWorker extends SwingWorker<Void, Void>
+	{
+		@Override
+		protected Void doInBackground() throws Exception {
+			culpaInfo = new Culpa();
+			return null;
+		}
+	}
+	
+	private class DepartmentSwingWorker extends 
 			SwingWorker<ArrayList<String>, Void> {
-
 		@Override
 		protected ArrayList<String> doInBackground() throws Exception {
 			DepartmentParser departmentParser = new DepartmentParser();
@@ -1091,7 +1103,7 @@ public class SSOLGUI {
 				index = list.locationToIndex(evt.getPoint());
 			} else
 				return;
-			CourseDisplay display = new CourseDisplay(frame, (Section) list
+			CourseDisplay display = new CourseDisplay(frame, culpaInfo (Section) list
 					.getModel().getElementAt(index));
 		}
 	}

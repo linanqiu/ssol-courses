@@ -39,27 +39,6 @@ public class CourseFetcher {
 	}
 	
 	/**
-	 * Simple program to make GET request
-	 * @param urlString URL of target
-	 * @return Result
-	 */
-	private static String httpGetRequest(String urlString) throws IOException
-	{
-		URL url = new URL(urlString);
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("GET");
-		BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-		
-		String result = "", line;
-		while ((line = reader.readLine()) != null)
-			result += line;
-		
-		reader.close();
-		return result;
-		
-	}
-	
-	/**
 	 * Return a Course object corresponding to the term
 	 * @param dept Department code
 	 * @param courseNumber The course number
@@ -73,7 +52,7 @@ public class CourseFetcher {
 		if (dept!=null)
 			urlString += "&department=" + dept;
 		
-		String httpResult = httpGetRequest(urlString);
+		String httpResult = HttpRequestor.getRequest(urlString);
 		
 		JsonObject httpJson = gson.fromJson(httpResult, JsonObject.class);
 		if (httpJson.getAsJsonPrimitive("status_code").getAsInt()==204)
@@ -118,7 +97,7 @@ public class CourseFetcher {
 	public Section getByCallNumber(int callNumber) throws IOException {
 		String urlString = sectionURL + "&limit=1&call_number=" + callNumber;
 		
-		String httpResult = httpGetRequest(urlString);
+		String httpResult = HttpRequestor.getRequest(urlString);
 		
 		JsonObject httpJson = gson.fromJson(httpResult, JsonObject.class);
 		if (httpJson.getAsJsonPrimitive("status_code").getAsInt()==204)
@@ -156,7 +135,7 @@ public class CourseFetcher {
 		if (dept!=null)
 			urlString += "&department=" + dept;
 		
-		String httpResult = httpGetRequest(urlString);
+		String httpResult = HttpRequestor.getRequest(urlString);
 		
 		JsonObject httpJson = gson.fromJson(httpResult, JsonObject.class);
 		if (httpJson.getAsJsonPrimitive("status_code").getAsInt()==204)

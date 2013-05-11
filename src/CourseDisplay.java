@@ -1,14 +1,21 @@
 import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Desktop;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 
 import javax.swing.JLabel;
 import net.miginfocom.swing.MigLayout;
+
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
@@ -28,7 +35,7 @@ public class CourseDisplay extends JFrame {
 	private JTextField credits;
 	private JSeparator separator;
 	private JLabel lblInstructor;
-	private JTextField instructor;
+	private JTextPane instructor;
 	private JLabel lblCallNumber;
 	private JTextField callNumber;
 	private JLabel lblTime;
@@ -41,6 +48,8 @@ public class CourseDisplay extends JFrame {
 	private JSeparator seperator1;
 	private JButton btnNewButton;
 
+	private static String culpaURL = "http://www.culpa.info/professors/";
+	
 	private CourseDisplay() {
 		setResizable(false);
 		setSize(500, 400);
@@ -90,10 +99,9 @@ public class CourseDisplay extends JFrame {
 		lblInstructor = new JLabel("Instructor");
 		getContentPane().add(lblInstructor, "cell 0 5,alignx center,aligny center");
 		
-		instructor = new JTextField();
+		instructor = new JTextPane();
 		instructor.setEditable(false);
 		getContentPane().add(instructor, "cell 1 5,growx");
-		instructor.setColumns(10);
 		
 		lblCallNumber = new JLabel("Call Number");
 		getContentPane().add(lblCallNumber, "cell 2 5,alignx trailing,aligny center");
@@ -147,7 +155,7 @@ public class CourseDisplay extends JFrame {
 	/**
 	 * Create the frame with course info
 	 */
-	public CourseDisplay(JFrame parent, CourseText info) {
+	public CourseDisplay(JFrame parent, Culpa culpaInfo, CourseText info) {
 		this();
 		
 		courseNumber.setText(info.getCourseNumber());
@@ -155,9 +163,37 @@ public class CourseDisplay extends JFrame {
 		description.setText(info.getDescription());
 		credits.setText(String.valueOf(info.getCredits()/10.0));
 		
-		if (info.getInstructor()!=null)
-			instructor.setText(info.getInstructor());
-		else
+		// Instructor provides a link to culpa.
+		if (info.getInstructor()!=null) {
+			String professor = info.getInstructor();
+
+			instructor.setContentType("text");
+			instructor.setText(professor);
+			if (culpaInfo != null) {
+				Integer id = culpaInfo.get(info.getInstructor());
+				if (id != null) {
+					final String url = culpaURL + id;
+					instructor.setContentType("text/html");
+					instructor.setText("<html><body><a href=\""
+							+ url
+							+ "\">" + professor
+							+ "</a></body></html>");
+					instructor.setCursor(new Cursor(Cursor.HAND_CURSOR));
+					instructor.addMouseListener(new MouseAdapter() {
+						
+						public void mouseClicked(MouseEvent e) {
+							try {
+								Desktop.getDesktop().browse(new URI(url));
+							} catch (Exception e1) {
+								JOptionPane.showMessageDialog(null, "Failed to open brower.", "Error", JOptionPane.ERROR_MESSAGE);
+							}
+						}
+						
+					});
+				}
+			}
+			
+		} else
 			instructor.setEnabled(false);
 		
 		if (info.getCallNumber()!=null)
