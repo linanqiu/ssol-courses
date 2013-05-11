@@ -35,13 +35,17 @@ import java.awt.Color;
 import java.awt.SystemColor;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
@@ -89,6 +93,8 @@ public class SSOLGUI {
 	private HashMap<Section, Integer> registrationStatus;
 
 	private CourseFetcher courseFetcher;
+	private JLabel lblAppointment;
+	private JLabel lblAppointmentindicator;
 
 	/**
 	 * Launch the application.
@@ -158,11 +164,11 @@ public class SSOLGUI {
 				gbc_panelPersonalInformation);
 		GridBagLayout gbl_panelPersonalInformation = new GridBagLayout();
 		gbl_panelPersonalInformation.columnWidths = new int[] { 0, 0, 0 };
-		gbl_panelPersonalInformation.rowHeights = new int[] { 0, 0, 0, 0, 0 };
+		gbl_panelPersonalInformation.rowHeights = new int[] { 0, 0, 0, 0, 0, 0 };
 		gbl_panelPersonalInformation.columnWeights = new double[] { 1.0, 1.0,
 				Double.MIN_VALUE };
 		gbl_panelPersonalInformation.rowWeights = new double[] { 0.0, 1.0, 1.0,
-				1.0, Double.MIN_VALUE };
+				1.0, 1.0, Double.MIN_VALUE };
 		panelPersonalInformation.setLayout(gbl_panelPersonalInformation);
 
 		JLabel lblPersonalInformation = new JLabel("Personal Information");
@@ -207,17 +213,33 @@ public class SSOLGUI {
 		JLabel lblBlockStatus = new JLabel("Block Status:");
 		GridBagConstraints gbc_lblBlockStatus = new GridBagConstraints();
 		gbc_lblBlockStatus.anchor = GridBagConstraints.EAST;
-		gbc_lblBlockStatus.insets = new Insets(0, 0, 0, 5);
+		gbc_lblBlockStatus.insets = new Insets(0, 0, 5, 5);
 		gbc_lblBlockStatus.gridx = 0;
 		gbc_lblBlockStatus.gridy = 3;
 		panelPersonalInformation.add(lblBlockStatus, gbc_lblBlockStatus);
 
 		lblBlockStatusIndicator = new JLabel("Block Status");
 		GridBagConstraints gbc_lblBlockStatusIndicator = new GridBagConstraints();
+		gbc_lblBlockStatusIndicator.insets = new Insets(0, 0, 5, 0);
 		gbc_lblBlockStatusIndicator.gridx = 1;
 		gbc_lblBlockStatusIndicator.gridy = 3;
 		panelPersonalInformation.add(lblBlockStatusIndicator,
 				gbc_lblBlockStatusIndicator);
+
+		lblAppointment = new JLabel("Reg Appointment:");
+		GridBagConstraints gbc_lblAppointment = new GridBagConstraints();
+		gbc_lblAppointment.anchor = GridBagConstraints.EAST;
+		gbc_lblAppointment.insets = new Insets(0, 0, 0, 5);
+		gbc_lblAppointment.gridx = 0;
+		gbc_lblAppointment.gridy = 4;
+		panelPersonalInformation.add(lblAppointment, gbc_lblAppointment);
+
+		lblAppointmentindicator = new JLabel("AppointmentIndicator");
+		GridBagConstraints gbc_lblAppointmentindicator = new GridBagConstraints();
+		gbc_lblAppointmentindicator.gridx = 1;
+		gbc_lblAppointmentindicator.gridy = 4;
+		panelPersonalInformation.add(lblAppointmentindicator,
+				gbc_lblAppointmentindicator);
 
 		JPanel panelExistingSections = new JPanel();
 		panelExistingSections.setBorder(BorderFactory
@@ -770,6 +792,7 @@ public class SSOLGUI {
 	private class BlockCheckSwingWorker extends SwingWorker<Void, Void> {
 
 		private boolean blocked;
+		private boolean registrationAppointment;
 
 		@Override
 		protected Void doInBackground() throws Exception {
@@ -797,14 +820,86 @@ public class SSOLGUI {
 				if (driver.getPageSource().toLowerCase().indexOf("ip blocked") > -1) {
 					blocked = true;
 					publish();
-					Thread.sleep(30000);
+
+					Thread.sleep(45000);
 				} else {
 					blocked = false;
+
+					System.out
+							.println("BlockCheckSwingWorker: checking appointment time");
+
+					// gets the registrationLink and takes the URL
+					WebElement registrationLink = driver.findElement(By
+							.linkText("Registration"));
+
+					String registrationLinkString = decodeSSOLLink(registrationLink
+							.toString());
+
+					// navigates to the registration page
+					driver.get(registrationLinkString);
+
+					List<WebElement> semesterOptionFields = driver
+							.findElements(By.cssSelector("fieldset"));
+
+					if (semesterOptionFields.size() == 1) {
+
+						System.out
+								.println("BlockCheckSwingWorker: only 1 semester found");
+
+						WebElement sessionForm = driver.findElement(By
+								.cssSelector("form[name=welcome]"));
+
+						WebElement sessionFormSubmit = sessionForm
+								.findElement(By
+										.cssSelector("input[name = \"tran[1]_act\"]"));
+
+						sessionFormSubmit.submit();
+
+					} else {
+
+						System.out
+								.println("BlockCheckSwingWorker: multiple semesters found");
+
+						List<WebElement> sessionForm = driver.findElements(By
+								.cssSelector("form[name=welcome]"));
+
+						WebElement sessionFormSubmit = null;
+
+						for (WebElement sessionFormElement : sessionForm) {
+							WebElement sessionFormId = sessionFormElement
+									.findElement(By
+											.cssSelector("input[name=\"tran[1]_term_id\"]"));
+
+							if (sessionFormId.getAttribute("value").equals(
+									semesterChoiceDialog.getSemesterChoice())) {
+
+								System.out
+										.println("BlockCheckSwingWorker: found matching session");
+
+								sessionFormSubmit = sessionFormElement
+										.findElement(By
+												.cssSelector("input[name = \"tran[1]_act\"]"));
+							}
+						}
+
+						sessionFormSubmit.submit();
+					}
+					
+					if(driver.getPageSource().toLowerCase().indexOf("no registration appointment") > -1) {
+						System.out.println("BlockCheckSwingWorker: appointment unavailable");
+						registrationAppointment = false;
+					} else {
+						System.out.println("BlockCheckSwingWorker: appointment available");
+						registrationAppointment = true;
+					}
+					
 					publish();
-					Thread.sleep(30000);
+
+					Thread.sleep(45000);
 				}
 
 			}
+
 		}
 
 		protected void process(List<Void> chunks) {
@@ -822,6 +917,55 @@ public class SSOLGUI {
 				SSOLGUI.this.lblBlockStatusIndicator.setOpaque(true);
 				SSOLGUI.this.lblBlockStatusIndicator.repaint();
 			}
+			
+			if (registrationAppointment) {
+				System.out.println("BlockCheckSwingWorker: appointment available");
+				SSOLGUI.this.lblAppointmentindicator.setText("Available");
+				SSOLGUI.this.lblAppointmentindicator.setBackground(Color.GREEN);
+				SSOLGUI.this.lblAppointmentindicator.setOpaque(true);
+				SSOLGUI.this.lblAppointmentindicator.repaint();
+			} else {
+				System.out.println("BlockCheckSwingWorker: appointment unavailable");
+				SSOLGUI.this.lblAppointmentindicator.setText("Unavailable");
+				SSOLGUI.this.lblAppointmentindicator.setBackground(Color.RED);
+				SSOLGUI.this.lblAppointmentindicator.setOpaque(true);
+				SSOLGUI.this.lblAppointmentindicator.repaint();
+			}
+		}
+
+		/**
+		 * takes raw html of a link on the SSOL site, removes the trash, and
+		 * decodes the URL encoding
+		 * 
+		 * @param encodedLink
+		 * @return decoded URL String
+		 */
+		private String decodeSSOLLink(String encodedLink) {
+
+			String decodedLink = encodedLink;
+
+			// gets the url starting with cgi-bin
+			Pattern pattern = Pattern
+					.compile(".*contentReplace\\(\\'\\/(.*)\\'\\).*");
+			Matcher matcher = pattern.matcher(decodedLink);
+
+			// trims away all the rest of the rubbish and replaces %. with %,
+			// standardizing the URL encoding
+			if (matcher.find()) {
+				decodedLink = matcher.group(1);
+				decodedLink = SSOL.baseURLString + decodedLink;
+				decodedLink = decodedLink.replaceAll("%.", "%");
+			}
+
+			// decode the bloody URL
+			try {
+				decodedLink = URLDecoder.decode(decodedLink, "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			return decodedLink;
 		}
 	}
 
