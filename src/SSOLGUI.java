@@ -4,6 +4,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.EventQueue;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
@@ -61,10 +62,11 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import java.awt.Dimension;
+import javax.swing.JCheckBox;
 
 public class SSOLGUI {
 
-	private JFrame frame;
+	private JFrame frmSsolHelper;
 	private JTextField txtSearch;
 	private SSOLController ssolController;
 	private LoginDialog loginDialog;
@@ -91,6 +93,8 @@ public class SSOLGUI {
 	private ArrayList<Section> sectionsToAddList;
 	private JComboBox comboBoxDepartment;
 	private JTree treeSectionTree;
+	private Console console;
+	private JButton btnLog;
 
 	private HashMap<Section, Integer> registrationStatus;
 
@@ -108,7 +112,7 @@ public class SSOLGUI {
 			public void run() {
 				try {
 					SSOLGUI window = new SSOLGUI();
-					window.frame.setVisible(true);
+					window.frmSsolHelper.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -120,6 +124,9 @@ public class SSOLGUI {
 	 * Create the application.
 	 */
 	public SSOLGUI() {
+		// makes console dialog
+		console = new Console();
+		
 		// Add a courseFetcher
 		courseFetcher = new CourseFetcher();
 		sectionsToAddModel = new SectionListModel();
@@ -145,18 +152,19 @@ public class SSOLGUI {
 		loginDialog = new LoginDialog();
 		semesterChoiceDialog = new SemesterChoiceDialog();
 
-		frame = new JFrame();
-		frame.setMinimumSize(new Dimension(800, 600));
-		frame.setBounds(100, 100, 800, 600);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setLocationRelativeTo(null);
+		frmSsolHelper = new JFrame();
+		frmSsolHelper.setTitle("SSOL Bot");
+		frmSsolHelper.setMinimumSize(new Dimension(800, 600));
+		frmSsolHelper.setBounds(100, 100, 800, 600);
+		frmSsolHelper.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmSsolHelper.setLocationRelativeTo(null);
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 284, 150, 0, 0 };
 		gridBagLayout.rowHeights = new int[] { 189, 0, 0 };
 		gridBagLayout.columnWeights = new double[] { 1.0, 1.0, 0.0,
 				Double.MIN_VALUE };
 		gridBagLayout.rowWeights = new double[] { 0.0, 1.0, Double.MIN_VALUE };
-		frame.getContentPane().setLayout(gridBagLayout);
+		frmSsolHelper.getContentPane().setLayout(gridBagLayout);
 
 		JPanel panelPersonalInformation = new JPanel();
 		panelPersonalInformation.setBorder(BorderFactory
@@ -166,15 +174,15 @@ public class SSOLGUI {
 		gbc_panelPersonalInformation.fill = GridBagConstraints.BOTH;
 		gbc_panelPersonalInformation.gridx = 0;
 		gbc_panelPersonalInformation.gridy = 0;
-		frame.getContentPane().add(panelPersonalInformation,
+		frmSsolHelper.getContentPane().add(panelPersonalInformation,
 				gbc_panelPersonalInformation);
 		GridBagLayout gbl_panelPersonalInformation = new GridBagLayout();
 		gbl_panelPersonalInformation.columnWidths = new int[] { 0, 0, 0 };
-		gbl_panelPersonalInformation.rowHeights = new int[] { 0, 0, 0, 0, 0, 0 };
+		gbl_panelPersonalInformation.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0 };
 		gbl_panelPersonalInformation.columnWeights = new double[] { 1.0, 1.0,
 				Double.MIN_VALUE };
 		gbl_panelPersonalInformation.rowWeights = new double[] { 0.0, 1.0, 1.0,
-				1.0, 1.0, Double.MIN_VALUE };
+				1.0, 1.0, 1.0, Double.MIN_VALUE };
 		panelPersonalInformation.setLayout(gbl_panelPersonalInformation);
 
 		JLabel lblPersonalInformation = new JLabel("Personal Information");
@@ -235,17 +243,26 @@ public class SSOLGUI {
 		lblAppointment = new JLabel("Reg Appointment:");
 		GridBagConstraints gbc_lblAppointment = new GridBagConstraints();
 		gbc_lblAppointment.anchor = GridBagConstraints.EAST;
-		gbc_lblAppointment.insets = new Insets(0, 0, 0, 5);
+		gbc_lblAppointment.insets = new Insets(0, 0, 5, 5);
 		gbc_lblAppointment.gridx = 0;
 		gbc_lblAppointment.gridy = 4;
 		panelPersonalInformation.add(lblAppointment, gbc_lblAppointment);
 
 		lblAppointmentindicator = new JLabel("AppointmentIndicator");
 		GridBagConstraints gbc_lblAppointmentindicator = new GridBagConstraints();
+		gbc_lblAppointmentindicator.insets = new Insets(0, 0, 5, 0);
 		gbc_lblAppointmentindicator.gridx = 1;
 		gbc_lblAppointmentindicator.gridy = 4;
 		panelPersonalInformation.add(lblAppointmentindicator,
 				gbc_lblAppointmentindicator);
+		
+		btnLog = new JButton("Show Log Messages");
+		GridBagConstraints gbc_btnLog = new GridBagConstraints();
+		gbc_btnLog.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnLog.gridwidth = 2;
+		gbc_btnLog.gridx = 0;
+		gbc_btnLog.gridy = 5;
+		panelPersonalInformation.add(btnLog, gbc_btnLog);
 
 		JPanel panelExistingSections = new JPanel();
 		panelExistingSections.setBorder(BorderFactory
@@ -255,7 +272,7 @@ public class SSOLGUI {
 		gbc_panelExistingSections.fill = GridBagConstraints.BOTH;
 		gbc_panelExistingSections.gridx = 1;
 		gbc_panelExistingSections.gridy = 0;
-		frame.getContentPane().add(panelExistingSections,
+		frmSsolHelper.getContentPane().add(panelExistingSections,
 				gbc_panelExistingSections);
 		GridBagLayout gbl_panelExistingSections = new GridBagLayout();
 		gbl_panelExistingSections.columnWidths = new int[] { 0, 0 };
@@ -292,7 +309,7 @@ public class SSOLGUI {
 		gbc_panelCredits.fill = GridBagConstraints.BOTH;
 		gbc_panelCredits.gridx = 2;
 		gbc_panelCredits.gridy = 0;
-		frame.getContentPane().add(panelCredits, gbc_panelCredits);
+		frmSsolHelper.getContentPane().add(panelCredits, gbc_panelCredits);
 		GridBagLayout gbl_panelCredits = new GridBagLayout();
 		gbl_panelCredits.columnWidths = new int[] { 120, 0 };
 		gbl_panelCredits.rowHeights = new int[] { 16, 0, 0, 0, 0 };
@@ -342,7 +359,7 @@ public class SSOLGUI {
 		gbc_panelSectionDirectory.fill = GridBagConstraints.BOTH;
 		gbc_panelSectionDirectory.gridx = 0;
 		gbc_panelSectionDirectory.gridy = 1;
-		frame.getContentPane().add(panelSectionDirectory,
+		frmSsolHelper.getContentPane().add(panelSectionDirectory,
 				gbc_panelSectionDirectory);
 		GridBagLayout gbl_panelSectionDirectory = new GridBagLayout();
 		gbl_panelSectionDirectory.columnWidths = new int[] { 0, 0, 0 };
@@ -429,7 +446,7 @@ public class SSOLGUI {
 					} else if (e.getClickCount() == 2) {
 						CourseText toShow = (CourseText) selPath
 								.getLastPathComponent();
-						CourseDisplay display = new CourseDisplay(frame,
+						CourseDisplay display = new CourseDisplay(frmSsolHelper,
 								culpaInfo, toShow);
 					}
 				}
@@ -483,7 +500,7 @@ public class SSOLGUI {
 		gbc_panelSectionsToAdd.fill = GridBagConstraints.BOTH;
 		gbc_panelSectionsToAdd.gridx = 1;
 		gbc_panelSectionsToAdd.gridy = 1;
-		frame.getContentPane().add(panelSectionsToAdd, gbc_panelSectionsToAdd);
+		frmSsolHelper.getContentPane().add(panelSectionsToAdd, gbc_panelSectionsToAdd);
 		GridBagLayout gbl_panelSectionsToAdd = new GridBagLayout();
 		gbl_panelSectionsToAdd.columnWidths = new int[] { 0, 0 };
 		gbl_panelSectionsToAdd.rowHeights = new int[] { 0, 0, 0 };
@@ -522,7 +539,7 @@ public class SSOLGUI {
 		gbc_panelRun.fill = GridBagConstraints.BOTH;
 		gbc_panelRun.gridx = 2;
 		gbc_panelRun.gridy = 1;
-		frame.getContentPane().add(panelRun, gbc_panelRun);
+		frmSsolHelper.getContentPane().add(panelRun, gbc_panelRun);
 		GridBagLayout gbl_panelRun = new GridBagLayout();
 		gbl_panelRun.columnWidths = new int[] { 0, 0 };
 		gbl_panelRun.rowHeights = new int[] { 0, 0, 0, 0 };
@@ -554,12 +571,13 @@ public class SSOLGUI {
 		panelRun.add(btnStop, gbc_btnStop);
 
 		btnStop.setEnabled(false);
-		frame.addMouseListener(new FrameListener());
-		frame.addKeyListener(new KonamiListener());
-		frame.setFocusable(true);
+		frmSsolHelper.addMouseListener(new FrameListener());
+		frmSsolHelper.addKeyListener(new KonamiListener());
+		frmSsolHelper.setFocusable(true);
 		StartStopListener startStopListener = new StartStopListener();
 		btnStart.addActionListener(startStopListener);
 		btnStop.addActionListener(startStopListener);
+		btnLog.addActionListener(new LogListener());
 	}
 
 	private void loginAndSemesterChoice() {
@@ -624,6 +642,15 @@ public class SSOLGUI {
 	public ArrayList<Section> getCourses() {
 		return sectionsToAddModel.getElements();
 
+	}
+	
+	private class LogListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			console.setVisible(true);
+		}
+		
 	}
 
 	private class StartStopListener implements ActionListener {
@@ -764,7 +791,7 @@ public class SSOLGUI {
 	private class FrameListener extends MouseAdapter {
 
 		public void mouseClicked(MouseEvent arg0) {
-			frame.requestFocus();
+			frmSsolHelper.requestFocus();
 		}
 
 	}
@@ -1114,7 +1141,7 @@ public class SSOLGUI {
 				index = list.locationToIndex(evt.getPoint());
 			} else
 				return;
-			CourseDisplay display = new CourseDisplay(frame, culpaInfo,
+			CourseDisplay display = new CourseDisplay(frmSsolHelper, culpaInfo,
 					(Section) list.getModel().getElementAt(index));
 		}
 	}

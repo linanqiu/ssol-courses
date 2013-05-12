@@ -63,7 +63,7 @@ public class DepartmentParser {
 		
 		@Override
 		protected ArrayList<String> doInBackground() throws Exception {
-			System.out.println("Fetching " + alphabet);
+			System.out.println("DepartmentPaser: fething all departments starting with " + alphabet);
 			ArrayList<String> departments = new ArrayList<String>();
 			
 			String deptURL = baseURL + alphabet + ".html";

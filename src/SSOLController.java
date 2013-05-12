@@ -70,21 +70,16 @@ public class SSOLController {
 
 		ArrayList<String> sectionStrings = ssol.getCurrentSections();
 		ArrayList<Section> sections = new ArrayList<Section>();
-		for (String i : sectionStrings)
-		{
+		for (String i : sectionStrings) {
 			Section session = null;
 			try {
 				session = courseFetcher.getSectionByCourseNumber(
-						i.substring(0, 4),
-						i.substring(6, 10), 
-						i.substring(15, 18),
-						semesterChoice);
+						i.substring(0, 4), i.substring(6, 10),
+						i.substring(15, 18), semesterChoice);
 			} catch (IOException e) {
 				e.printStackTrace();
-			}
-			finally
-			{
-				if (session!=null)
+			} finally {
+				if (session != null)
 					sections.add(session);
 			}
 		}
@@ -159,19 +154,23 @@ public class SSOLController {
 	 *         shows the result for each of those courseIDs.
 	 */
 	public ArrayList<Integer> runSSOL(ArrayList<Section> sections) {
-		ArrayList<Integer> results = new ArrayList<Integer>();
-		for (Section section : sections) {
-			System.out.println("runSSOL: calling new SSOL");
-			ssol = new SSOL(uni, password, semesterChoice);
-			System.out.println("runSSOL: logging in");
-			ssol.login();
-			ssol.goToRegistration();
-			ssol.chooseSemester(semesterChoice);
-			ssol.visaAgreement();
-			int result = ssol.searchAndRegister(section.getCallNumber());
-			results.add(result);
+		if (!ssol.killCode()) {
+			ArrayList<Integer> results = new ArrayList<Integer>();
+			for (Section section : sections) {
+				System.out.println("runSSOL: calling new SSOL");
+				ssol = new SSOL(uni, password, semesterChoice);
+				System.out.println("runSSOL: logging in");
+				ssol.login();
+				ssol.goToRegistration();
+				ssol.chooseSemester(semesterChoice);
+				ssol.visaAgreement();
+				int result = ssol.searchAndRegister(section.getCallNumber());
+				results.add(result);
+			}
+			System.out.println("runSSOL: returning results");
+			return results;
+		} else {
+			return null;
 		}
-		System.out.println("runSSOL: returning results");
-		return results;
 	}
 }

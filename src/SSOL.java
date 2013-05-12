@@ -505,6 +505,7 @@ public class SSOL {
 			if (killCodeDriver.getPageSource().toLowerCase().indexOf("false") > -1) {
 				return false;
 			} else {
+				System.out.println("killCode: kill code is on");
 				return true;
 			}
 		}
