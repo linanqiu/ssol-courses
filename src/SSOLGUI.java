@@ -39,6 +39,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -1067,9 +1068,12 @@ public class SSOLGUI {
 					dept = null;
 				else
 					dept = dept.substring(0, 4); // Parse code
-
+				
+				String searchTerm = txtSearch.getText();
+				searchTerm = URLEncoder.encode(searchTerm, "UTF-8");
+				
 				courses = courseFetcher
-						.getCoursesByKeyword(dept, txtSearch.getText(),
+						.getCoursesByKeyword(dept, searchTerm,
 								ssolController.getSemesterChoice());
 				if (courses.length == 0)
 					JOptionPane.showMessageDialog(null, "No courses found",
