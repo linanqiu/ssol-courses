@@ -2,12 +2,14 @@ Project Name:
 SSOL Courses
 
 Description:
+SSOL Courses is a Java GUI interface to search and register courses on SSOL. Specifications include:
 - Automatically tries to get courses on SSOL
 - Pick courses from the Columbia Bulletin
 - Parses current schedule and adds courses using a GUI
 - Keeps retrying for courses until you get the courses
 - Optimal timing to avoid having IP blocked
 - Wait timer for IP blocking
+- Double click on courses shows its information, with a hyperlink to CULPA to sees review to the class
 
 Technology used:
 Interfaces (Defined a CourseText interface to unify GUI behavior of courses and sections)
@@ -20,11 +22,14 @@ Multithreading
 Advanced Java (External Library)
 
 Work Breakdown:
+Console.java -- Linan Qiu
 Course.java -- Xingzhou He
 CourseDisplay.java -- Xingzhou He
 CourseFetcher.java -- Xingzhou He
 CourseText.java -- Xingzhou He
+Culpa.java -- Xingzhou He
 DepartmentParser.java -- Linan Qiu
+HttpRequestor.java -- Xingzhou He
 LoginDialog.java -- Linan Qiu
 SSOL.java -- Linan Qiu
 SSOLController.java -- Linan Qiu
