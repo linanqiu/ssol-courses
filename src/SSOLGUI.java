@@ -63,6 +63,9 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import java.awt.Dimension;
 import javax.swing.JCheckBox;
+import javax.swing.JMenuBar;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 
 public class SSOLGUI {
 
@@ -99,10 +102,14 @@ public class SSOLGUI {
 	private HashMap<Section, Integer> registrationStatus;
 
 	private Culpa culpaInfo;
+	private AboutDialog aboutDialog;
 
 	private CourseFetcher courseFetcher;
 	private JLabel lblAppointment;
 	private JLabel lblAppointmentindicator;
+	private JMenuBar menuBar;
+	private JMenuItem mntmAbout;
+	private JMenuItem mntmLog;
 
 	/**
 	 * Launch the application.
@@ -126,7 +133,8 @@ public class SSOLGUI {
 	public SSOLGUI() {
 		// makes console dialog
 		console = new Console();
-		
+		aboutDialog = new AboutDialog();
+
 		// Add a courseFetcher
 		courseFetcher = new CourseFetcher();
 		sectionsToAddModel = new SectionListModel();
@@ -178,7 +186,8 @@ public class SSOLGUI {
 				gbc_panelPersonalInformation);
 		GridBagLayout gbl_panelPersonalInformation = new GridBagLayout();
 		gbl_panelPersonalInformation.columnWidths = new int[] { 0, 0, 0 };
-		gbl_panelPersonalInformation.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0 };
+		gbl_panelPersonalInformation.rowHeights = new int[] { 0, 0, 0, 0, 0, 0,
+				0 };
 		gbl_panelPersonalInformation.columnWeights = new double[] { 1.0, 1.0,
 				Double.MIN_VALUE };
 		gbl_panelPersonalInformation.rowWeights = new double[] { 0.0, 1.0, 1.0,
@@ -255,7 +264,7 @@ public class SSOLGUI {
 		gbc_lblAppointmentindicator.gridy = 4;
 		panelPersonalInformation.add(lblAppointmentindicator,
 				gbc_lblAppointmentindicator);
-		
+
 		btnLog = new JButton("Show Log Messages");
 		GridBagConstraints gbc_btnLog = new GridBagConstraints();
 		gbc_btnLog.fill = GridBagConstraints.HORIZONTAL;
@@ -446,8 +455,8 @@ public class SSOLGUI {
 					} else if (e.getClickCount() == 2) {
 						CourseText toShow = (CourseText) selPath
 								.getLastPathComponent();
-						CourseDisplay display = new CourseDisplay(frmSsolHelper,
-								culpaInfo, toShow);
+						CourseDisplay display = new CourseDisplay(
+								frmSsolHelper, culpaInfo, toShow);
 					}
 				}
 			}
@@ -500,7 +509,8 @@ public class SSOLGUI {
 		gbc_panelSectionsToAdd.fill = GridBagConstraints.BOTH;
 		gbc_panelSectionsToAdd.gridx = 1;
 		gbc_panelSectionsToAdd.gridy = 1;
-		frmSsolHelper.getContentPane().add(panelSectionsToAdd, gbc_panelSectionsToAdd);
+		frmSsolHelper.getContentPane().add(panelSectionsToAdd,
+				gbc_panelSectionsToAdd);
 		GridBagLayout gbl_panelSectionsToAdd = new GridBagLayout();
 		gbl_panelSectionsToAdd.columnWidths = new int[] { 0, 0 };
 		gbl_panelSectionsToAdd.rowHeights = new int[] { 0, 0, 0 };
@@ -574,10 +584,21 @@ public class SSOLGUI {
 		frmSsolHelper.addMouseListener(new FrameListener());
 		frmSsolHelper.addKeyListener(new KonamiListener());
 		frmSsolHelper.setFocusable(true);
+
+		menuBar = new JMenuBar();
+		frmSsolHelper.setJMenuBar(menuBar);
+
+		mntmLog = new JMenuItem("Log");
+		menuBar.add(mntmLog);
+
+		mntmAbout = new JMenuItem("About");
+		menuBar.add(mntmAbout);
 		StartStopListener startStopListener = new StartStopListener();
 		btnStart.addActionListener(startStopListener);
 		btnStop.addActionListener(startStopListener);
-		btnLog.addActionListener(new LogListener());
+		mntmAbout.addActionListener(new MenuListener());
+		mntmLog.addActionListener(new MenuListener());
+
 	}
 
 	private void loginAndSemesterChoice() {
@@ -643,14 +664,20 @@ public class SSOLGUI {
 		return sectionsToAddModel.getElements();
 
 	}
-	
-	private class LogListener implements ActionListener {
+
+	private class MenuListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			console.setVisible(true);
+			if (arg0.getSource() == mntmAbout) {
+				aboutDialog.setVisible(true);
+			}
+			if (arg0.getSource() == mntmLog) {
+				console.setVisible(true);
+			}
+
 		}
-		
+
 	}
 
 	private class StartStopListener implements ActionListener {
@@ -1095,13 +1122,12 @@ public class SSOLGUI {
 					dept = null;
 				else
 					dept = dept.substring(0, 4); // Parse code
-				
+
 				String searchTerm = txtSearch.getText();
 				searchTerm = URLEncoder.encode(searchTerm, "UTF-8");
-				
-				courses = courseFetcher
-						.getCoursesByKeyword(dept, searchTerm,
-								ssolController.getSemesterChoice());
+
+				courses = courseFetcher.getCoursesByKeyword(dept, searchTerm,
+						ssolController.getSemesterChoice());
 				if (courses.length == 0)
 					JOptionPane.showMessageDialog(null, "No courses found",
 							"Message", JOptionPane.INFORMATION_MESSAGE);
