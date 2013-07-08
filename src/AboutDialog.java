@@ -9,7 +9,6 @@ import javax.swing.JLabel;
 import java.awt.GridLayout;
 import javax.swing.SwingConstants;
 
-
 public class AboutDialog extends JDialog {
 
 	private final JPanel contentPanel = new JPanel();
@@ -37,15 +36,17 @@ public class AboutDialog extends JDialog {
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
 		contentPanel.setLayout(new GridLayout(0, 1, 0, 0));
 		{
-			JLabel lblMadeByXingzhou = new JLabel("Made by Xingzhou He and Linan Qiu");
+			JLabel lblMadeByXingzhou = new JLabel(
+					"Made by Xingzhou He and Linan Qiu");
 			lblMadeByXingzhou.setHorizontalAlignment(SwingConstants.CENTER);
 			contentPanel.add(lblMadeByXingzhou);
 		}
-		
-		JLabel lblWithHelpFrom = new JLabel("With Help from Swapneel and Morris");
+
+		JLabel lblWithHelpFrom = new JLabel(
+				"With Help from Swapneel and Morris");
 		lblWithHelpFrom.setHorizontalAlignment(SwingConstants.CENTER);
 		contentPanel.add(lblWithHelpFrom);
-		
+
 		JLabel lblSsolbot = new JLabel("SSOLBot");
 		lblSsolbot.setHorizontalAlignment(SwingConstants.CENTER);
 		contentPanel.add(lblSsolbot);

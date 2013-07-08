@@ -26,8 +26,8 @@ public class Console extends JDialog {
 	 */
 	public Console() {
 		setTitle("Log Messages");
-		
-		redirectSystemStreams();
+
+		// redirectSystemStreams();
 
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(new BorderLayout());
@@ -44,21 +44,21 @@ public class Console extends JDialog {
 		}
 
 	}
-	
+
 	private void redirectSystemStreams() {
 		OutputStream out = new ConsoleOutputStream();
-		
+
 		System.setOut(new PrintStream(out, true));
 		System.setErr(new PrintStream(out, true));
 	}
-	
+
 	private class CloseButtonListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			Console.this.setVisible(false);
 		}
-		
+
 	}
 
 	private class ConsoleOutputStream extends OutputStream {

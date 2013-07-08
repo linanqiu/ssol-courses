@@ -415,7 +415,7 @@ public class SSOL {
 			addClassElement.click();
 			} catch (Exception e) {
 				System.out.println("searchAndRegister: page not correct. perhaps system is closed");
-				return REGISTRATION_UNSUCCESSFUL;
+				return SECTION_NOT_FOUND;
 			}
 			System.out.println("searchAndRegister: registration request sent");
 

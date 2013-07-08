@@ -97,7 +97,6 @@ public class SSOLGUI {
 	private JComboBox comboBoxDepartment;
 	private JTree treeSectionTree;
 	private Console console;
-	private JButton btnLog;
 
 	private HashMap<Section, Integer> registrationStatus;
 
@@ -108,8 +107,10 @@ public class SSOLGUI {
 	private JLabel lblAppointment;
 	private JLabel lblAppointmentindicator;
 	private JMenuBar menuBar;
-	private JMenuItem mntmAbout;
 	private JMenuItem mntmLog;
+	private SaveLoad saveLoad;
+	private JButton btnLoad;
+	private JButton btnSave;
 
 	/**
 	 * Launch the application.
@@ -138,6 +139,9 @@ public class SSOLGUI {
 		// Add a courseFetcher
 		courseFetcher = new CourseFetcher();
 		sectionsToAddModel = new SectionListModel();
+
+		// Instantiates SaveLoad
+		saveLoad = new SaveLoad();
 
 		registrationStatus = new HashMap<Section, Integer>();
 
@@ -264,14 +268,6 @@ public class SSOLGUI {
 		gbc_lblAppointmentindicator.gridy = 4;
 		panelPersonalInformation.add(lblAppointmentindicator,
 				gbc_lblAppointmentindicator);
-
-		btnLog = new JButton("Show Log Messages");
-		GridBagConstraints gbc_btnLog = new GridBagConstraints();
-		gbc_btnLog.fill = GridBagConstraints.HORIZONTAL;
-		gbc_btnLog.gridwidth = 2;
-		gbc_btnLog.gridx = 0;
-		gbc_btnLog.gridy = 5;
-		panelPersonalInformation.add(btnLog, gbc_btnLog);
 
 		JPanel panelExistingSections = new JPanel();
 		panelExistingSections.setBorder(BorderFactory
@@ -552,9 +548,9 @@ public class SSOLGUI {
 		frmSsolHelper.getContentPane().add(panelRun, gbc_panelRun);
 		GridBagLayout gbl_panelRun = new GridBagLayout();
 		gbl_panelRun.columnWidths = new int[] { 0, 0 };
-		gbl_panelRun.rowHeights = new int[] { 0, 0, 0, 0 };
+		gbl_panelRun.rowHeights = new int[] { 0, 0, 0, 0, 0, 0 };
 		gbl_panelRun.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-		gbl_panelRun.rowWeights = new double[] { 0.0, 1.0, 1.0,
+		gbl_panelRun.rowWeights = new double[] { 0.0, 1.0, 1.0, 0.0, 0.0,
 				Double.MIN_VALUE };
 		panelRun.setLayout(gbl_panelRun);
 
@@ -575,12 +571,26 @@ public class SSOLGUI {
 
 		btnStop = new JButton("Stop");
 		GridBagConstraints gbc_btnStop = new GridBagConstraints();
+		gbc_btnStop.insets = new Insets(0, 0, 5, 0);
 		gbc_btnStop.fill = GridBagConstraints.BOTH;
 		gbc_btnStop.gridx = 0;
 		gbc_btnStop.gridy = 2;
 		panelRun.add(btnStop, gbc_btnStop);
 
 		btnStop.setEnabled(false);
+
+		btnLoad = new JButton("Load");
+		GridBagConstraints gbc_btnLoad = new GridBagConstraints();
+		gbc_btnLoad.insets = new Insets(0, 0, 5, 0);
+		gbc_btnLoad.gridx = 0;
+		gbc_btnLoad.gridy = 3;
+		panelRun.add(btnLoad, gbc_btnLoad);
+
+		btnSave = new JButton("Save");
+		GridBagConstraints gbc_btnSave = new GridBagConstraints();
+		gbc_btnSave.gridx = 0;
+		gbc_btnSave.gridy = 4;
+		panelRun.add(btnSave, gbc_btnSave);
 		frmSsolHelper.addMouseListener(new FrameListener());
 		frmSsolHelper.addKeyListener(new KonamiListener());
 		frmSsolHelper.setFocusable(true);
@@ -590,15 +600,12 @@ public class SSOLGUI {
 
 		mntmLog = new JMenuItem("Log");
 		menuBar.add(mntmLog);
-
-		mntmAbout = new JMenuItem("About");
-		menuBar.add(mntmAbout);
 		StartStopListener startStopListener = new StartStopListener();
 		btnStart.addActionListener(startStopListener);
 		btnStop.addActionListener(startStopListener);
-		mntmAbout.addActionListener(new MenuListener());
 		mntmLog.addActionListener(new MenuListener());
-
+		btnLoad.addActionListener(new SaveLoadListener());
+		btnSave.addActionListener(new SaveLoadListener());
 	}
 
 	private void loginAndSemesterChoice() {
@@ -669,15 +676,55 @@ public class SSOLGUI {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			if (arg0.getSource() == mntmAbout) {
-				aboutDialog.setVisible(true);
-			}
 			if (arg0.getSource() == mntmLog) {
 				console.setVisible(true);
 			}
 
 		}
 
+	}
+
+	private class SaveLoadListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource().equals(btnLoad)) {
+				try {
+					ArrayList<Section> sectionsLoaded = saveLoad.deserialize();
+
+					if (sectionsLoaded.size() == 0) {
+						System.out.println("No sections foundin save file.");
+					} else {
+						for (Section section : sectionsLoaded) {
+							sectionsToAddModel.add(section);
+							System.out.println("Loaded a section.");
+							listSectionsToAdd.repaint();
+						}
+
+						System.out.println("All sections loaded.");
+					}
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			} else if (e.getSource().equals(btnSave)) {
+				ArrayList<Section> sectionsToSave = sectionsToAddModel
+						.getElements();
+
+				try {
+					saveLoad.serialize(sectionsToSave);
+					System.out.println("All sections saved.");
+
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+
+		}
 	}
 
 	private class StartStopListener implements ActionListener {
@@ -727,7 +774,6 @@ public class SSOLGUI {
 						courseIDs.remove(i);
 						System.out.println("RunSSOLWorker: Result DONE");
 					} else if (results.get(i) == SSOL.SECTION_NOT_FOUND) {
-						courseIDs.remove(i);
 						System.out.println("RunSSOLWorker: Result NOT FOUND");
 					} else if (results.get(i) == SSOL.REGISTRATION_UNSUCCESSFUL) {
 						System.out

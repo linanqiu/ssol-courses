@@ -1,18 +1,20 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
 /**
  * Object to implement a course
- * @author Xingzhou  xh2187
+ * 
+ * @author Xingzhou xh2187
  */
 
 @SuppressWarnings("unused")
-public class Course implements CourseText{
+public class Course implements CourseText, Serializable {
 
 	public Course() {
-		
+
 	}
-	
+
 	// These fields are capitalized for GSON processor
 	// From data.adicu.com
 	private String DepartmentCode;
@@ -21,27 +23,25 @@ public class Course implements CourseText{
 	private int NumFixedUnits;
 	private String CourseTitle;
 	private String Description;
-	
+
 	public String toString() {
 		return getCourseNumber() + " " + getTitle();
 	}
-	
+
 	/**
 	 * Delete sections not within the term. Used for post-processing
 	 */
 	public void postProcess(String term) {
 		ArrayList<Section> termSections = new ArrayList<Section>();
-		for (Section i:Sections)
-			if (i.getSemester().equals(term))
-			{
+		for (Section i : Sections)
+			if (i.getSemester().equals(term)) {
 				i.setCourse(this);
 				termSections.add(i);
 			}
 		Sections = termSections.toArray(new Section[termSections.size()]);
 	}
-	
-	public Section[] getSections()
-	{
+
+	public Section[] getSections() {
 		return Sections;
 	}
 
@@ -97,7 +97,7 @@ public class Course implements CourseText{
 	}
 
 	@Override
-	public String getMeetDay() {		
+	public String getMeetDay() {
 		return null;
 	}
 
@@ -110,7 +110,5 @@ public class Course implements CourseText{
 	public Integer getNumEnroll() {
 		return null;
 	}
-	
-	
-	
+
 }

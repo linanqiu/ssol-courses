@@ -1,6 +1,6 @@
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
 
 /**
  * A description of sections
@@ -9,21 +9,21 @@ import java.util.Date;
  * @uni xh2187
  */
 
-public class Section implements CourseText {
+public class Section implements CourseText, Serializable {
 
 	public Section() {
 		parent = null;
 	}
-	
+
 	/**
 	 * Set parent course
+	 * 
 	 * @param course
 	 */
-	public void setCourse(Course course)
-	{
+	public void setCourse(Course course) {
 		parent = course;
 	}
-	
+
 	private Course parent;
 	private String Term;
 	private String Instructor1Name;
@@ -35,40 +35,38 @@ public class Section implements CourseText {
 	private Integer MaxSize;
 	private Integer NumEnrolled;
 	private String SectionFull;
-	
-	public boolean equals(Section that)
-	{
+
+	public boolean equals(Section that) {
 		if (that == null || getCallNumber() != that.getCallNumber())
 			return false;
 		return true;
 	}
-	
-	public String toString()
-	{
-		return "Sec " + getCourseNumber().substring(9) + ":" + getInstructor() +", " + getTime();
+
+	public String toString() {
+		return "Sec " + getCourseNumber().substring(9) + ":" + getInstructor()
+				+ ", " + getTime();
 	}
-	
+
 	/**
 	 * Get parsed time
+	 * 
 	 * @return Time as in a string, ready to be displayed
 	 */
 	public String getTime() {
-		if (getMeetDay()!=null)
-		{
+		if (getMeetDay() != null) {
 			SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
-			return getMeetDay()+" "+formatter.format(getStartTime())+"-"+formatter.format(getEndTime());
-		}
-		else
-		{
+			return getMeetDay() + " " + formatter.format(getStartTime()) + "-"
+					+ formatter.format(getEndTime());
+		} else {
 			return "n/a";
 		}
-			
+
 	}
-	
+
 	public String getSectionFull() {
 		return SectionFull;
 	}
-	
+
 	@Override
 	public String getCourseNumber() {
 		return SectionFull;
@@ -134,5 +132,4 @@ public class Section implements CourseText {
 		return NumEnrolled;
 	}
 
-	
 }
