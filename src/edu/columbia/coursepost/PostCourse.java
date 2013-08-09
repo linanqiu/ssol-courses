@@ -1,4 +1,5 @@
 package edu.columbia.coursepost;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -28,8 +29,8 @@ public class PostCourse {
 	private String hash;
 	private int callNum = 70238;
 	private String fullCallNum = "70238COMS 3157 W 001";
-	private String username = "ab1234";
-	private String password = "whatever";
+	private String username = "jl3957";
+	private String password = "6jadorenougat6";
 
 	private void post() throws ClientProtocolException, IOException {
 
@@ -170,8 +171,7 @@ public class PostCourse {
 		nvps.add(new BasicNameValuePair("p_t_id", "1"));
 		nvps.add(new BasicNameValuePair("tran[1]_entry", "student"));
 		nvps.add(new BasicNameValuePair("tran[1]_tran_name", "sreg"));
-		nvps.add(new BasicNameValuePair("tran[1]_CALLNUM",
-				fullCallNum));
+		nvps.add(new BasicNameValuePair("tran[1]_CALLNUM", fullCallNum));
 		nvps.add(new BasicNameValuePair("tran[1]_fixp", "4.00"));
 		nvps.add(new BasicNameValuePair("tran[1]_PASSFAIL", "N"));
 		nvps.add(new BasicNameValuePair("tran[1]_act", "Add Class"));
@@ -204,16 +204,16 @@ public class PostCourse {
 			IOException {
 		DefaultHttpClient httpclient = new DefaultHttpClient();
 
-		String url = "https://ssol.columbia.edu/cgi-bin/ssol/"
-				+ hash
-				+ "/?p%.5Fr%.5Fid=" + hash + "&p%.5Ft%.5Fid=1&tran%.5B1%.5D%.5Ftran%.5Fname=cslo";
+		String url = "https://ssol.columbia.edu/cgi-bin/ssol/" + hash
+				+ "/?p%.5Fr%.5Fid=" + hash
+				+ "&p%.5Ft%.5Fid=1&tran%.5B1%.5D%.5Ftran%.5Fname=cslo";
 
 		url = url.replaceAll("%.", "%");
-		
+
 		HttpGet httpget = new HttpGet(url);
 
 		HttpResponse response = httpclient.execute(httpget);
-		
+
 		HttpEntity entity = response.getEntity();
 
 		System.out.println("Logout form get: " + response.getStatusLine());
@@ -234,7 +234,6 @@ public class PostCourse {
 		EntityUtils.consume(entity);
 
 	}
-	
 
 	private String getLoginHash(String source) throws IOException {
 
@@ -266,7 +265,9 @@ public class PostCourse {
 	public static void main(String[] args) {
 		PostCourse test = new PostCourse();
 		try {
-			test.post();
+			while (true) {
+				test.post();
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
