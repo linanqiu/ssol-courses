@@ -1,4 +1,5 @@
 package edu.columbia.courseselection;
+
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -1090,6 +1091,7 @@ public class SSOLGUI {
 		}
 	}
 
+	@SuppressWarnings({ "rawtypes", "serial" })
 	private class SectionListModel extends AbstractListModel {
 		private ArrayList<Section> sections;
 

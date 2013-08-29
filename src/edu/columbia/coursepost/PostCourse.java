@@ -24,15 +24,36 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
+import edu.columbia.courseselection.Section;
+
 public class PostCourse {
 
 	private String hash;
-	private int callNum = 70238;
-	private String fullCallNum = "70238COMS 3157 W 001";
-	private String username = "jl3957";
-	private String password = "6jadorenougat6";
+	private String username = "";
+	private String password = "";
 
-	private void post() throws ClientProtocolException, IOException {
+	public PostCourse(String username, String password, Section[] sections)
+			throws ClientProtocolException, IOException {
+		this.username = username;
+		this.password = password;
+
+		for (Section section : sections) {
+
+			post(section);
+		}
+	}
+
+	public void post(Section section) throws ClientProtocolException,
+			IOException {
+
+		String fullCallNum = section.getSectionFull();
+		fullCallNum = fullCallNum.substring(0, 4) + " "
+				+ fullCallNum.substring(4, 8) + " "
+				+ fullCallNum.substring(8, 9) + " "
+				+ fullCallNum.substring(9, 12);
+		fullCallNum = section.getCallNumber() + fullCallNum;
+
+		int callNum = section.getCallNumber();
 
 		// Get initial page
 		DefaultHttpClient httpclient = new DefaultHttpClient();
@@ -200,41 +221,6 @@ public class PostCourse {
 
 	}
 
-	private void logOut(String hash) throws ClientProtocolException,
-			IOException {
-		DefaultHttpClient httpclient = new DefaultHttpClient();
-
-		String url = "https://ssol.columbia.edu/cgi-bin/ssol/" + hash
-				+ "/?p%.5Fr%.5Fid=" + hash
-				+ "&p%.5Ft%.5Fid=1&tran%.5B1%.5D%.5Ftran%.5Fname=cslo";
-
-		url = url.replaceAll("%.", "%");
-
-		HttpGet httpget = new HttpGet(url);
-
-		HttpResponse response = httpclient.execute(httpget);
-
-		HttpEntity entity = response.getEntity();
-
-		System.out.println("Logout form get: " + response.getStatusLine());
-
-		// Print out intial page source
-		BufferedReader bf = new BufferedReader(new InputStreamReader(response
-				.getEntity().getContent()));
-
-		StringBuffer sourceBuffer = new StringBuffer();
-		String line = "";
-		while ((line = bf.readLine()) != null) {
-			sourceBuffer.append(line);
-		}
-
-		String source = sourceBuffer.toString();
-		System.out.println(source);
-
-		EntityUtils.consume(entity);
-
-	}
-
 	private String getLoginHash(String source) throws IOException {
 
 		Pattern pattern = Pattern
@@ -260,17 +246,5 @@ public class PostCourse {
 		}
 
 		return "";
-	}
-
-	public static void main(String[] args) {
-		PostCourse test = new PostCourse();
-		try {
-			while (true) {
-				test.post();
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 }
